@@ -1,0 +1,30 @@
+{
+    "name": "simple-sm",
+    "version": "0.0.1",
+    "description": "Module for running a node.js REPL session",
+    "keywords": [
+        "javascript",
+        "REPL",
+        "session",
+        "vm",
+        "ijavascript"
+    ],
+    "author": {
+        "author": "Nicolas Riesco",
+        "email": "enquiries@nicolasriesco.net",
+        "url": "http://www.nicolasriesco.net/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/n-riesco/simple-sm.git"
+    },
+    "license": "BSD-3-Clause",
+    "devDependencies": {
+        "jsdoc": "latest",
+        "jshint": "latest"
+    },
+    "scripts": {
+        "doc": "jsdoc -R README.md -d doc index.js lib",
+        "lint": "jshint index.js lib"
+    }
+}
