@@ -1,6 +1,6 @@
-# `simple-sm`
+# Node.js Evaluation Loop (NEL)
 
-`simple-sm` is an [npm module](https://www.npmjs.com/) for running
+`NEL` is an [npm module](https://www.npmjs.com/) for running
 [node.js](https://nodejs.org/) REPL sessions.
 
 Please, consider this repository as an alpha release. The API is likely to
@@ -9,7 +9,7 @@ change.
 ## Install
 
 ```sh
-npm install simple-sm
+npm install nel
 ```
 
 ## Usage
@@ -18,8 +18,8 @@ Example of usage taken from
 [IJavascript](https://github.com/n-riesco/ijavascript):
 
 ```javascript
-var sm = require("simple-sm");
-var session = new sm.Session();
+var nel = require("nel");
+var session = new nel.Session();
 
 // Callback called before running the Javascript code.
 var beforeRun = function (session) {
@@ -48,29 +48,20 @@ var task = {
 };
 session.run(task);
 // Output:
-// { mime:
-//    { 'text/plain': 'undefined',
-//      'text/html': '<pre>undefined</pre>' },
-// }
+// { mime: { 'text/plain': 'undefined' } }
 // 1
 
 task.code = "msg;";
 session.run(task);
 // Output:
-// { mime:
-//    { 'text/plain': '\'Hello, World!\'',
-//      'text/html': '<pre>&#39;Hello, World!&#39;</pre>' },
-// }
+// { mime: { 'text/plain': '\'Hello, World!\'' } }
 // 2
 
 task.code = "console.log(msg);";
 session.run(task);
 process.stdout.write(session.stdout.read());
 // Output:
-// { mime:
-//    { 'text/plain': 'undefined',
-//      'text/html': '<pre>undefined</pre>' },
-// }
+// { mime: { 'text/plain': 'undefined' } }
 // 3
 // Hello, World!
 
@@ -78,10 +69,7 @@ task.code = "console.warn(msg);";
 session.run(task);
 process.stderr.write(session.stderr.read());
 // Output:
-// { mime:
-//    { 'text/plain': 'undefined',
-//      'text/html': '<pre>undefined</pre>' },
-// }
+// { mime: { 'text/plain': 'undefined' } }
 // 4
 // Hello, World!
 
@@ -120,10 +108,7 @@ task.beforeRun = beforeRun;
 task.afterRun = afterRun;
 session.run(task);
 // Output:
-// { mime:
-//    { 'text/plain': 'undefined',
-//      'text/html': '<pre>undefined</pre>' },
-// }
+// { mime: { 'text/plain': 'undefined' } }
 // 6
 
 task.action = "getAllPropertyNames";
@@ -168,7 +153,7 @@ session.run(task);
 # Contributions
 
 First of all, thank you for taking the time to contribute. Please, read
-[CONTRIBUTING.md](https://github.com/n-riesco/simple-sm/blob/master/CONTRIBUTING.md)
-and use the [issue tracker](https://github.com/n-riesco/simple-sm/issues) for
+[CONTRIBUTING.md](https://github.com/n-riesco/nel/blob/master/CONTRIBUTING.md)
+and use the [issue tracker](https://github.com/n-riesco/nel/issues) for
 any contributions: support requests, bug reports, enhancement requests, pull
 requests, ...
