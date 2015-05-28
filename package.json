@@ -25,6 +25,7 @@
     },
     "scripts": {
         "doc": "jsdoc -R README.md -d doc index.js lib",
+        "doc:publish": "node scripts/doc-publish.js doc https://github.com/n-riesco/nel",
         "lint": "jshint index.js lib"
     }
 }
