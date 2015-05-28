@@ -1,7 +1,7 @@
 {
     "name": "simple-sm",
-    "version": "0.0.1",
-    "description": "Module for running a node.js REPL session",
+    "version": "0.0.2",
+    "description": "Node.js module for running a Javascript REPL session",
     "keywords": [
         "javascript",
         "REPL",

@@ -145,6 +145,24 @@ session.run(task);
 //      'toString',
 //      'valueOf' ],
 // }
+
+task.action = "run";
+task.code = "$$html$$ = \"<div style='background-color:olive;width:50px;height:50px'></div>\";";
+task.beforeRun = beforeRun;
+task.afterRun = afterRun;
+session.run(task);
+// Output:
+// { mime: { 'text/html': '<div style=\'background-color:olive;width:50px;height:50px\'></div>' } }
+// 7
+
+task.action = "run";
+task.code = "$$svg$$ = \"<svg><rect width=80 height=80 style='fill: orange;'/></svg>\";";
+task.beforeRun = beforeRun;
+task.afterRun = afterRun;
+session.run(task);
+// Output:
+// { mime: { 'image/svg+xml': '<svg><rect width=80 height=80 style=\'fill: orange;\'/></svg>' } }
+// 8
 ```
 
 # Contributions
