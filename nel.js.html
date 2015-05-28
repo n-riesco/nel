@@ -60,9 +60,9 @@
  *
  */
 
-/** @module sm
+/** @module nel
  *
- * @description Module `sm` provides a Javascript session manager. A Javascript
+ * @description Module `nel` provides a Javascript session manager. A Javascript
  * session can be used to run Javascript code within `node.js`, pass the result
  * to a callback function and even capture its `stdout` and `stderr` streams.
  *
@@ -229,15 +229,15 @@ paths.server = path.join(paths.thisFolder, "nel_server.js");
  *
  * @property {String} cwd Session current working directory
  *
- * @see {@link module:sm~Session}
+ * @see {@link module:nel~Session}
  */
 
 /**
  * @class
  * @classdesc Implements a Javascript session
- * @param {module:sm~Config} [smConfig] Javascript session configuration.
+ * @param {module:nel~Config} [nelConfig] Javascript session configuration.
  */
-function Session(smConfig) {
+function Session(nelConfig) {
     /**
      * Number of execution requests
      * @member {number}
@@ -246,30 +246,30 @@ function Session(smConfig) {
 
     /**
      * Last result
-     * @member {module:sm~Result}
+     * @member {module:nel~Result}
      */
     this.result = undefined;
 
     /**
      * Task currently being run (`null` if none)
-     * @member {?module:sm~Task}
+     * @member {?module:nel~Task}
      * @private
      */
     this._task = null;
 
     /**
      * Queue of tasks to be run
-     * @member {module:sm~Task[]}
+     * @member {module:nel~Task[]}
      * @private
      */
     this._tasks = [];
 
     /**
      * Session configuration
-     * @member {module:sm~Config}
+     * @member {module:nel~Config}
      * @private
      */
-    this._config = smConfig || {};
+    this._config = nelConfig || {};
     this._config.stdio = ["pipe", "pipe", "pipe", "ipc"];
 
     /**
@@ -298,7 +298,7 @@ function Session(smConfig) {
     this.stderr = this._server.stderr;
 
     /**
-     * True after calling {@link module:sm~Session.kill}, otherwise false
+     * True after calling {@link module:nel~Session.kill}, otherwise false
      * @member {Boolean}
      * @private
      */
@@ -338,19 +338,19 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  *                                             the list of constructors,
  *                                             string representation, length...
  * @property {string}              code        Code to evaluate
- * @property {module:sm~RunCB}     [beforeRun] Called before the code
- * @property {module:sm~RunCB}     [afterRun]  Called after the code
- * @property {module:sm~RunCB}     onSuccess   Called if no errors occurred
- * @property {module:sm~RunCB}     onError     Called if an error occurred
+ * @property {module:nel~RunCB}    [beforeRun] Called before the code
+ * @property {module:nel~RunCB}    [afterRun]  Called after the code
+ * @property {module:nel~RunCB}    onSuccess   Called if no errors occurred
+ * @property {module:nel~RunCB}    onError     Called if an error occurred
  *
- * @see {@link module:sm~Session#run}
+ * @see {@link module:nel~Session#run}
  */
 
 /**
  * @callback RunCB
- * @param {module:sm~Session} session Session
+ * @param {module:nel~Session} session Session
  * @description Session Callback
- * @see {@link module:sm~Task}
+ * @see {@link module:nel~Task}
  */
 
 /**
@@ -375,7 +375,7 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  *                                        evaluating a piece of Javascript code.
  *
  * @property            [completion]      Defined only for successful calls to
- *                                        {@link module:sm~Session#complete}.
+ *                                        {@link module:nel~Session#complete}.
  * @property {String[]} completion.list   Array of completion possibilities
  * @property {String}   completion.code   Javascript code to be completed
  * @property {Integer}  completion.cursorPos
@@ -395,7 +395,7 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  *
  * @property            [inspection]      Defined only for successful "inspect"
  *                                        actions or successful calls to {@link
- *                                        module:sm~Session#inspect}. It
+ *                                        module:nel~Session#inspect}. It
  *                                        provides a description of the object
  *                                        resulting of evaluating a piece of
  *                                        Javascript code or a Javascript
@@ -416,24 +416,24 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  *                                        Length property
  *
  * @property            [doc]             Defined only for calls to {@link
- *                                        module:sm~inspect} that succeed to
+ *                                        module:nel~inspect} that succeed to
  *                                        find documentation for a Javascript
  *                                        expression.
  * @property {String}   doc.description   Description
  * @property {String}   [doc.usage]       Usage
  * @property {String}   doc.url           Link to the documentation source
  *
- * @see {@link module:sm~Session#result}
+ * @see {@link module:nel~Session#result}
  */
 
 /**
  * Callback to handle messages from the session server
  *
- * @param {module:sm~Result} message Result of last execution request
+ * @param {module:nel~Result} message Result of last execution request
  * @private
  */
 Session.prototype._onMessage = function(message) {
-    if (DEBUG) console.log("SM: MESSAGE", message);
+    if (DEBUG) console.log("NEL: SESSION: MESSAGE", message);
 
     this.result = message;
 
@@ -458,10 +458,10 @@ Session.prototype._onMessage = function(message) {
 /**
  * Run a task
  *
- * @param {module:sm~Task} task Task to be run
+ * @param {module:nel~Task} task Task to be run
  */
 Session.prototype.run = function(task) {
-    if (DEBUG) console.log("SM: RUN:", task);
+    if (DEBUG) console.log("NEL: SESSION: RUN:", task);
     if (this._killed) {
         return;
     }
@@ -475,7 +475,7 @@ Session.prototype.run = function(task) {
 /**
  * Run a task now
  *
- * @param {module:sm~Task} task Task to be run
+ * @param {module:nel~Task} task Task to be run
  * @private
  */
 Session.prototype._runNow = function(task) {
@@ -490,7 +490,7 @@ Session.prototype._runNow = function(task) {
 /**
  * Run a task later
  *
- * @param {module:sm~Task} task Task to be run
+ * @param {module:nel~Task} task Task to be run
  * @private
  */
 Session.prototype._runLater = function(task) {
@@ -523,14 +523,14 @@ var javascriptKeywords = [
 /**
  * Complete a Javascript expression
  *
- * @param {String}          code       Javascript code
- * @param {Number}          cursorPos  Cursor position within `code`
- * @param {module:sm~RunCB} onSuccess  Called if no errors occurred
- * @param {module:sm~RunCB} onError    Called if an error occurred
+ * @param {String}           code       Javascript code
+ * @param {Number}           cursorPos  Cursor position within `code`
+ * @param {module:nel~RunCB} onSuccess  Called if no errors occurred
+ * @param {module:nel~RunCB} onError    Called if an error occurred
  */
 Session.prototype.complete = function(code, cursorPos, onSuccess, onError) {
     var expression = parseExpression(code, cursorPos);
-    if (DEBUG) console.log("SM: COMPLETE: expression", expression);
+    if (DEBUG) console.log("NEL: SESSION: COMPLETE: expression", expression);
     if (expression === null) {
         onError(this);
     }
@@ -605,14 +605,14 @@ Session.prototype.complete = function(code, cursorPos, onSuccess, onError) {
 /**
  * Inspect a Javascript expression
  *
- * @param {String}          code       Javascript code
- * @param {Number}          cursorPos  Cursor position within `code`
- * @param {module:sm~RunCB} onSuccess  Called if no errors occurred
- * @param {module:sm~RunCB} onError    Called if an error occurred
+ * @param {String}           code       Javascript code
+ * @param {Number}           cursorPos  Cursor position within `code`
+ * @param {module:nel~RunCB} onSuccess  Called if no errors occurred
+ * @param {module:nel~RunCB} onError    Called if an error occurred
  */
 Session.prototype.inspect = function(code, cursorPos, onSuccess, onError) {
     var expression = parseExpression(code, cursorPos);
-    if (DEBUG) console.log("SM: INSPECT: expression:", expression);
+    if (DEBUG) console.log("NEL: SESSION: INSPECT: expression:", expression);
 
     var documentation;
 
@@ -679,7 +679,7 @@ Session.prototype.inspect = function(code, cursorPos, onSuccess, onError) {
  *
  * @param {?String}             [signal="SIGTERM"] Signal passed to kill the
  *                                                 session server
- * @param {module:sm~KillCB}    [killCB]           Callback run after the
+ * @param {module:nel~KillCB}   [killCB]           Callback run after the
  *                                                 session server has been
  *                                                 killed
  */
@@ -699,15 +699,15 @@ Session.prototype.kill = function(signal, killCB) {
  * @param {?Number} code   Exit code from session server if exited normally
  * @param {?String} signal Signal passed to kill the session server
  * @description Callback run after the session server has been killed
- * @see {@link module:sm~Session#kill}
+ * @see {@link module:nel~Session#kill}
  */
 
 /**
  * Restart session
  *
- * @param {?String}             [signal="SIGTERM"] Signal passed to kill the old
- *                                                 session
- * @param {module:sm~RestartCB} [restartCB]        Callback run after restart
+ * @param {?String}              [signal="SIGTERM"] Signal passed to kill the
+ *                                                  old session
+ * @param {module:nel~RestartCB} [restartCB]        Callback run after restart
  */
 Session.prototype.restart = function(signal, restartCB) {
     this.kill(signal || "SIGTERM", (function(code, signal) {
@@ -723,7 +723,7 @@ Session.prototype.restart = function(signal, restartCB) {
  * @param {?Number} code   Exit code from old session if exited normally
  * @param {?String} signal Signal passed to kill the old session
  * @description Callback run after restart
- * @see {@link module:sm~Session#restart}
+ * @see {@link module:nel~Session#restart}
  */
 
 /**
@@ -758,7 +758,7 @@ var complexIdentifierRE = /[_$a-zA-Z][_$a-zA-Z0-9]*(?:[_$a-zA-Z][_$a-zA-Z0-9]*|\
  * @property {String} selector    Stem of the property being matched, e.g. `bar`
  * @property {String} rightOp     Right-hand-side selector operator, e.g. `"]`
  *
- * @see {@link module:sm~parseExpression}
+ * @see {@link module:nel~parseExpression}
  * @private
  */
 
@@ -768,7 +768,7 @@ var complexIdentifierRE = /[_$a-zA-Z][_$a-zA-Z0-9]*(?:[_$a-zA-Z][_$a-zA-Z0-9]*|\
  * @param {String} code       Javascript code
  * @param {Number} cursorPos  Cursor position within `code`
  *
- * @returns {module:sm~Expression}
+ * @returns {module:nel~Expression}
  *
  * @todo Parse expressions with parenthesis
  * @private
@@ -898,13 +898,13 @@ function getDocumentation(name) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-sm.html">sm</a></li></ul><h3>Classes</h3><ul><li><a href="module-sm-Session.html">Session</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-nel.html">nel</a></li></ul><h3>Classes</h3><ul><li><a href="module-nel-Session.html">Session</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu May 28 2015 13:50:18 GMT+0100 (BST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu May 28 2015 16:13:24 GMT+0100 (BST)
 </footer>
 
 <script> prettyPrint(); </script>
