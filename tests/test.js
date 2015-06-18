@@ -44,6 +44,7 @@ testNext(session, [
     testSessionRestart,
     testSessionRun,
     testSessionInspect,
+    testSessionComplete,
     testSessionKill,
 ]);
 
@@ -289,6 +290,66 @@ function makeSessionInspectTestCase(code, cursorPos, result) {
             assert(
                 false,
                 makeErrorMessage("Evaluation error", session.result)
+            );
+        }
+
+        function check(session) {
+            assert.deepEqual(
+                session.result, result,
+                makeErrorMessage(
+                    "Unexpected result",
+                    util.inspect(result),
+                    "Expected",
+                    util.inspect(session.result)
+                )
+            );
+
+            testNext(session, tests);
+        }
+    };
+}
+
+function testSessionComplete(session, tests) {
+    var testCases = [{
+        code: "set",
+        cursorPos: 2,
+        result: {
+            completion: {
+                list: ['setImmediate', 'setInterval', 'setTimeout'],
+                code: 'set',
+                cursorPos: 2,
+                matchedText: 'se',
+                cursorStart: 0,
+                cursorEnd: 3,
+            },
+        },
+    }, ].map(function(testCase) {
+        return makeSessionCompleteTestCase(
+            testCase.code,
+            testCase.cursorPos,
+            testCase.result
+        );
+    });
+
+    testNext(session, testCases.concat(tests));
+}
+
+function makeSessionCompleteTestCase(code, cursorPos, result) {
+    function makeErrorMessage() {
+        var messages = ["testSessionComplete"];
+        for (var i = 0; i < arguments.length; i++) {
+            messages.push(arguments[i]);
+        }
+        return messages.join(": ");
+    }
+
+    return function(session, tests) {
+        session.complete(code, cursorPos, check, onError);
+
+        function onError(session) {
+            assert(
+                false,
+                makeErrorMessage("Error", session.result)
             );
         }
 
