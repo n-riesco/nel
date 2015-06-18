@@ -44,145 +44,204 @@
 
     <section>
         <article><h1>Node.js Evaluation Loop (NEL)</h1><p><code>NEL</code> is an <a href="https://www.npmjs.com/">npm module</a> for running
-<a href="https://nodejs.org/">node.js</a> REPL sessions.</p>
+<a href="https://nodejs.org/">Node.js</a> REPL sessions.</p>
+<p><code>NEL</code> is a spin-off library from
+<a href="https://n-riesco.github.io/ijavascript">IJavascript</a>. This fact explains design
+decisions in <code>NEL</code> such as returning results in MIME format, and the
+functionality provided for completion and inspection of Javascript expressions.
+See the section on usage for more details.</p>
 <p>Please, consider this repository as an alpha release. The API is likely to
 change.</p>
-<h2>Install</h2><pre class="prettyprint source lang-sh"><code>npm install nel</code></pre><h2>Usage</h2><p>Example of usage taken from
-<a href="https://github.com/n-riesco/ijavascript">IJavascript</a>:</p>
-<pre class="prettyprint source lang-javascript"><code>var nel = require(&quot;nel&quot;);
+<h2>Install</h2><pre class="prettyprint source lang-sh"><code>npm install nel</code></pre><h2>Main Features</h2><ul>
+<li>Run Javascript code within a <code>Node.js</code> session. The result can be formatted
+as:<ul>
+<li><a href="http://n-riesco.github.io/ijavascript/doc/hello.ipynb.html">plain text</a></li>
+<li><a href="http://n-riesco.github.io/ijavascript/doc/graphics.ipynb.html">other MIME
+formats</a>
+(<code>HTML</code>, <code>SVG</code>, <code>PNG</code>...)</li>
+</ul>
+</li>
+<li>Run Javascript code
+<a href="http://n-riesco.github.io/ijavascript/doc/async.ipynb.html">asynchronously</a>.</li>
+<li>Generate a list of <a href="http://n-riesco.github.io/ijavascript/doc/complete.md.html">completion
+options</a> for an
+incomplete piece of Javascript code.</li>
+<li><a href="http://n-riesco.github.io/ijavascript/doc/inspect.md.html">Inspect a Javascript
+expression</a> and
+return information such as type or even documentation (currently, only for
+Javascript builtins).</li>
+</ul>
+<h2>Usage</h2><h3>Hello, World!</h3><pre class="prettyprint source lang-js"><code>// Load `nel` module
+var nel = require(&quot;nel&quot;);
+
+// Setup a new Javascript session
 var session = new nel.Session();
 
-// Callback called before running the Javascript code.
-var beforeRun = function (session) {
-    session.executionCount++;
-};
-// Callback called after running the Javascript code.
-var afterRun = function (session) {
-    console.log(session.executionCount);
-};
-// Callback called only if no errors occurred.
-var onSuccess = function (session) {
-    console.log(session.result);
-};
-// Callback called only if errors occurred.
-var onError = function (session) {
-    console.log(session.result);
-};
+// Define callbacks to handle results and errors
+function printResult(session) { console.log(session.result); }
+function printError(session) { console.log(session.result); }
 
+// Setup a task
 var task = {
     action: &quot;run&quot;,
-    code: &quot;var msg = 'Hello, World!';&quot;,
-    beforeRun: beforeRun,
-    afterRun: afterRun,
-    onSuccess: onSuccess,
-    onError: onError,
+    code: &quot;['Hello', 'World!'].join(', ');&quot;,
+    onSuccess: printResult,
+    onError: printError,
 };
-session.run(task);
-// Output:
-// { mime: { 'text/plain': 'undefined' } }
-// 1
 
-task.code = &quot;msg;&quot;;
+// Run task
 session.run(task);
-// Output:
-// { mime: { 'text/plain': '\'Hello, World!\'' } }
-// 2
 
-task.code = &quot;console.log(msg);&quot;;
-session.run(task);
-process.stdout.write(session.stdout.read());
 // Output:
-// { mime: { 'text/plain': 'undefined' } }
-// 3
-// Hello, World!
-
-task.code = &quot;console.warn(msg);&quot;;
+// { mime: { 'text/plain': '\'Hello, World!\'' } }</code></pre><h3>Exceptions</h3><pre class="prettyprint source lang-js"><code>task.code = &quot;throw new Error('Hello, World!');&quot;;
 session.run(task);
-process.stderr.write(session.stderr.read());
-// Output:
-// { mime: { 'text/plain': 'undefined' } }
-// 4
-// Hello, World!
 
-task.code = &quot;throw new Error('This is a test!');&quot;;
-session.run(task);
 // Output:
 // { error:
-//    { ename: 'Error',
-//      evalue: 'This is a test!',
-//      traceback:
-//       [ 'Error: This is a test!',
-//         '    at evalmachine.&lt;anonymous>:1:7',
-//         '    at run ([eval]:116:19)',
-//         '    at onMessage ([eval]:63:41)',
-//         '    at process.EventEmitter.emit (events.js:98:17)',
-//         '    at handleMessage (child_process.js:318:10)',
-//         '    at Pipe.channel.onread (child_process.js:345:11)' ] },
-// }
-// 5
-
-task.action = &quot;inspect&quot;;
-task.code = &quot;msg&quot;;
-task.beforeRun = undefined;
-task.afterRun = undefined;
+//  { ename: 'Error',
+//    evalue: 'Hello, World!',
+//    traceback:
+//     [ 'Error: Hello, World!',
+//       '    at evalmachine.&lt;anonymous>:1:7',
+//       '    at run ([eval]:182:19)',
+//       '    at onMessage ([eval]:63:41)',
+//       '    at process.EventEmitter.emit (events.js:98:17)',
+//       '    at handleMessage (child_process.js:318:10)',
+//       '    at Pipe.channel.onread (child_process.js:345:11)' ] } }</code></pre><h3><code>stdout</code> and <code>stderr</code></h3><pre class="prettyprint source lang-js"><code>task.code = &quot;console.log('Hello, World!');&quot;
 session.run(task);
-// Output:
-// { string: 'Hello, World!',
-//   type: 'String',
-//   constructorList: [ 'String', 'Object' ],
-//   length: 13,
-// }
 
-task.action = &quot;run&quot;;
-task.code = &quot;var obj = {};&quot;;
-task.beforeRun = beforeRun;
-task.afterRun = afterRun;
-session.run(task);
 // Output:
 // { mime: { 'text/plain': 'undefined' } }
-// 6
 
-task.action = &quot;getAllPropertyNames&quot;;
-task.code = &quot;obj&quot;;
-task.beforeRun = undefined;
-task.afterRun = undefined;
-session.run(task);
+process.stdout.write(session.stdout.read());
+
 // Output:
-// { names:
-//    [ '__defineGetter__',
-//      '__defineSetter__',
-//      '__lookupGetter__',
-//      '__lookupSetter__',
-//      'constructor',
-//      'hasOwnProperty',
-//      'isPrototypeOf',
-//      'propertyIsEnumerable',
-//      'toLocaleString',
-//      'toString',
-//      'valueOf' ],
-// }
-
-task.action = &quot;run&quot;;
+// Hello, World!</code></pre><h3>MIME output</h3><p>A session may return results in MIME formats other than 'text/plain'.</p>
+<pre class="prettyprint source lang-js"><code>// HTML example
 task.code = &quot;$$html$$ = \&quot;&lt;div style='background-color:olive;width:50px;height:50px'>&lt;/div>\&quot;;&quot;;
-task.beforeRun = beforeRun;
-task.afterRun = afterRun;
 session.run(task);
+
 // Output:
 // { mime: { 'text/html': '&lt;div style=\'background-color:olive;width:50px;height:50px\'>&lt;/div>' } }
-// 7
 
-task.action = &quot;run&quot;;
+// SVG example
 task.code = &quot;$$svg$$ = \&quot;&lt;svg>&lt;rect width=80 height=80 style='fill: orange;'/>&lt;/svg>\&quot;;&quot;;
-task.beforeRun = beforeRun;
-task.afterRun = afterRun;
 session.run(task);
+
 // Output:
 // { mime: { 'image/svg+xml': '&lt;svg>&lt;rect width=80 height=80 style=\'fill: orange;\'/>&lt;/svg>' } }
-// 8</code></pre><h1>Contributions</h1><p>First of all, thank you for taking the time to contribute. Please, read
+
+// PNG example
+task.code = &quot;$$png$$ = require('fs').readFileSync('image.png').toString('base64');&quot;
+session.run(task);
+
+// JPEG example
+task.code = &quot;$$jpeg$$ = require('fs').readFileSync('image.jpg').toString('base64');&quot;
+session.run(task);
+
+// MIME example
+task.code = &quot;$$mime$$ = {\&quot;text/html\&quot;: \&quot;&lt;div style='background-color:olive;width:50px;height:50px'>&lt;/div>\&quot;};&quot;
+session.run(task);</code></pre><h3>Generate a completion list</h3><p><code>NEL</code> can parse simple Javascript variable expressions and generate a list of
+completion options:</p>
+<pre class="prettyprint source lang-js"><code>session.complete(
+    &quot;set&quot;,        // code
+    3,            // cursorPos
+    printResult,  // onSucess
+    printError    // onError
+);
+
+// Output:
+// { completion:
+//    { list: [ 'setImmediate', 'setInterval', 'setTimeout' ],
+//      code: 'set',
+//      cursorPos: 3,
+//      matchedText: 'set',
+//      cursorStart: 0,
+//      cursorEnd: 3 } }</code></pre><p>Note that the cursor position can be located anywhere within the Javascript
+code:</p>
+<pre class="prettyprint source lang-js"><code>session.complete(
+    &quot;set&quot;,        // code
+    2,            // cursorPos
+    printResult,  // onSucess
+    printError    // onError
+);
+
+// Output:
+// { completion:
+//    { list: [ 'setImmediate', 'setInterval', 'setTimeout' ],
+//      code: 'set',
+//      cursorPos: 2,
+//      matchedText: 'se',
+//      cursorStart: 0,
+//      cursorEnd: 3 } }</code></pre><h3>Inspect an expression</h3><p><code>NEL</code> can parse simple Javascript variable expressions and inspect their value:</p>
+<pre class="prettyprint source lang-js"><code>task.code = &quot;var a = [1, 2, 3];&quot;;
+session.run(task);
+
+// Output:
+// { mime: { 'text/plain': 'undefined' } }
+
+session.inspect(
+    task.code,    // code
+    5,            // cursorPos
+    printResult,  // onSucess
+    printError    // onError
+);
+
+// Output:
+// { inspection:
+//    { string: '[ 1, 2, 3 ]',
+//      type: 'Array',
+//      constructorList: [ 'Array', 'Object' ],
+//      length: 3,
+//      code: 'var a = [1, 2, 3];',
+//      cursorPos: 5,
+//      matchedText: 'a' } }</code></pre><p><code>NEL</code> can also provide relevant documentation (currently only available for
+Javascript builtins):</p>
+<pre class="prettyprint source lang-js"><code>session.inspect(
+    &quot;parseInt&quot;,   // code
+    8,            // cursorPos
+    printResult,  // onSucess
+    printError    // onError
+);
+
+// Output:
+// { inspection:
+//    { string: '[Function: parseInt]',
+//      type: 'Object',
+//      constructorList: [ 'Function', 'Object' ],
+//      length: 2,
+//      code: 'parseInt',
+//      cursorPos: 8,
+//      matchedText: 'parseInt' },
+//   doc:
+//    { description: 'The parseInt() function parses a string argument and returns an integer of the specified radix (the base in mathematical numeral systems).',
+//      url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt',
+//      usage: 'parseInt(string, radix);' } }</code></pre><h3>Callbacks <code>beforeRun</code> and <code>afterRun</code></h3><pre class="prettyprint source lang-js"><code>task.beforeRun = function(session) { console.log(&quot;This callback runs first&quot;); }
+task.code = &quot;'I run next'&quot;;
+task.afterRun = function(session) { console.log(&quot;This callback runs last&quot;); }
+session.run(task);
+
+// Output:
+// This callback runs first
+// { mime: { 'text/plain': '\'I run next\'' } }
+// This callback runs last</code></pre><h1>Announcements</h1><ul>
+<li><code>Session.executionCount</code> is deprecated. It will be removed in version 0.1.0.</li>
+<li><code>Task.action</code> will default to <code>run</code> in version 0.1.0.</li>
+</ul>
+<h1>Contributions</h1><p>First of all, thank you for taking the time to contribute. Please, read
 <a href="https://github.com/n-riesco/nel/blob/master/CONTRIBUTING.md">CONTRIBUTING.md</a>
 and use the <a href="https://github.com/n-riesco/nel/issues">issue tracker</a> for
 any contributions: support requests, bug reports, enhancement requests, pull
-requests, ...</p></article>
+requests, ...</p>
+<h1>TODO</h1><ul>
+<li>Add tests for <code>$$async$$</code> and <code>$$done()$$</code></li>
+<li>Add tests for <code>$$html$$</code>, $$png$$<code>, $$jpeg$$</code> and $$mime$$`</li>
+<li>Make <code>Task.action</code> default to <code>run</code></li>
+<li>Remove <code>session.executionCount</code> automatically</li>
+<li>Make <code>onSuccess</code>, <code>onError</code> callbacks options</li>
+<li>Make <code>cursorPos</code> default to <code>code.length</code></li>
+<li>Add <code>Node.js</code> documentation</li>
+</ul></article>
     </section>
 
 
@@ -199,7 +258,7 @@ requests, ...</p></article>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu May 28 2015 16:13:24 GMT+0100 (BST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on Thu Jun 18 2015 21:44:28 GMT+0100 (BST)
 </footer>
 
 <script> prettyPrint(); </script>
