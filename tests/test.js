@@ -43,6 +43,7 @@ var session = new nel.Session();
 testNext(session, [
     testSessionRestart,
     testSessionRun,
+    testSessionInspect,
     testSessionKill,
 ]);
 
@@ -120,6 +121,14 @@ function testSessionRun(session, tests) {
 }
 
 function makeSessionRunTestCase(code, result, stdout, stderr) {
+    function makeErrorMessage() {
+        var messages = ["testSessionRun"];
+        for (var i = 0; i < arguments.length; i++) {
+            messages.push(arguments[i]);
+        }
+        return messages.join(": ");
+    }
+
     return function(session, tests) {
         var hasRun = [];
 
@@ -192,13 +201,109 @@ function makeSessionRunTestCase(code, result, stdout, stderr) {
 
             testNext(session, tests);
         }
+    };
+}
 
-        function makeErrorMessage() {
-            var messages = ["testSessionRun"];
-            for (var i = 0; i < arguments.length; i++) {
-                messages.push(arguments[i]);
-            }
-            return messages.join(": ");
+function testSessionInspect(session, tests) {
+    var testCases = [{
+        code: "var msg = 'Hello, World!';",
+        cursorPos: 7,
+        result: {
+            inspection: {
+                string: 'Hello, World!',
+                type: 'String',
+                constructorList: ['String', 'Object'],
+                length: 13,
+                code: "var msg = 'Hello, World!';",
+                cursorPos: 7,
+                matchedText: 'msg'
+            },
+        },
+    }, {
+        code: "var a = [1, 2, 3];",
+        cursorPos: 5,
+        result: {
+            inspection: {
+                string: '[ 1, 2, 3 ]',
+                type: 'Array',
+                constructorList: ['Array', 'Object'],
+                length: 3,
+                code: 'var a = [1, 2, 3];',
+                cursorPos: 5,
+                matchedText: 'a'
+            },
+        },
+    }, {
+        code: "parseInt",
+        cursorPos: 8,
+        result: {
+            inspection: {
+                string: '[Function: parseInt]',
+                type: 'Function',
+                constructorList: ['Function', 'Object'],
+                length: 2,
+                code: 'parseInt',
+                cursorPos: 8,
+                matchedText: 'parseInt',
+            },
+            doc: {
+                description: 'The parseInt() function parses a string argument and returns an integer of the specified radix (the base in mathematical numeral systems).',
+                url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt',
+                usage: 'parseInt(string, radix);'
+            },
+        },
+    }, ].map(function(testCase) {
+        return makeSessionInspectTestCase(
+            testCase.code,
+            testCase.cursorPos,
+            testCase.result
+        );
+    });
+
+    testNext(session, testCases.concat(tests));
+}
+
+function makeSessionInspectTestCase(code, cursorPos, result) {
+    function makeErrorMessage() {
+        var messages = ["testSessionInspect"];
+        for (var i = 0; i < arguments.length; i++) {
+            messages.push(arguments[i]);
+        }
+        return messages.join(": ");
+    }
+
+    return function(session, tests) {
+        // First run the code, then inspect the expression at cursorPos.
+        var task = {
+            action: "run",
+            code: code,
+            onSuccess: function(session) {
+                session.inspect(code, cursorPos, check, onError);
+            },
+            onError: onError,
+        };
+
+        session.run(task);
+
+        function onError(session) {
+            assert(
+                false,
+                makeErrorMessage("Evaluation error", session.result)
+            );
+        }
+
+        function check(session) {
+            assert.deepEqual(
+                session.result, result,
+                makeErrorMessage(
+                    "Unexpected result",
+                    util.inspect(result),
+                    "Expected",
+                    util.inspect(session.result)
+                )
+            );
+
+            testNext(session, tests);
         }
     };
 }
