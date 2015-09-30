@@ -261,10 +261,11 @@ requests, ...
 
 # TODO
 
-- Add tests for `$$async$$` and `$$done()$$`
-- Add tests for `$$html$$`, $$png$$`, $$jpeg$$` and $$mime$$`
-- Make `Task.action` default to `run`
 - Remove `session.executionCount` automatically
+- Implement `$$mimer$$` and `$$text$$`
+- Add tests for `$$async$$` and `$$done()$$`
+- Add tests for `$$html$$`, `$$png$$`, `$$jpeg$$` and `$$mime$$`
+- Make `Task.action` default to `run`
 - Make `onSuccess`, `onError` callbacks options
 - Make `cursorPos` default to `code.length`
 - Add `Node.js` documentation
