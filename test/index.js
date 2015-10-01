@@ -239,7 +239,7 @@ function testSessionInspect(session, tests) {
         cursorPos: 8,
         result: {
             inspection: {
-                string: '[Function: parseInt]',
+                string: 'function parseInt() { [native code] }',
                 type: 'Function',
                 constructorList: ['Function', 'Object'],
                 length: 2,
