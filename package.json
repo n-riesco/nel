@@ -1,6 +1,6 @@
 {
     "name": "nel",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "Node.js Evaluation Loop (NEL): A Node.js module to implement a Javascript REPL session",
     "keywords": [
         "javascript",
