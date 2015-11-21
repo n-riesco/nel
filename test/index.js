@@ -170,9 +170,9 @@ function makeSessionRunTestCase(code, result, stdout, stderr) {
                 session.result, result,
                 makeErrorMessage(
                     "Unexpected result",
-                    util.inspect(result),
+                    util.inspect(session.result),
                     "Expected",
-                    util.inspect(session.result)
+                    util.inspect(result)
                 )
             );
 
