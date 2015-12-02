@@ -4,10 +4,10 @@
 [Node.js](https://nodejs.org/) REPL sessions.
 
 `NEL` is a spin-off library from
-[IJavascript](https://n-riesco.github.io/ijavascript). This fact explains design
-decisions in `NEL` such as returning results in MIME format, and the
-functionality provided for completion and inspection of Javascript expressions.
-See the section on usage for more details.
+[IJavascript](https://n-riesco.github.io/ijavascript). This fact explains some
+of the design decisions in `NEL` such as returning results in MIME format, and
+the functionality provided for completion and inspection of Javascript
+expressions.  See the section on usage for more details.
 
 Please, consider this repository as an alpha release. The API is likely to
 change.
@@ -249,7 +249,6 @@ session.run(task);
 # Announcements
 
 - `Session.executionCount` is deprecated. It will be removed in version 0.1.0.
-- `Task.action` will default to `run` in version 0.1.0.
 
 # Contributions
 
@@ -261,11 +260,10 @@ requests, ...
 
 # TODO
 
-- Remove `session.executionCount` automatically
-- Implement `$$mimer$$` and `$$text$$`
+- Remove `session.executionCount`
+- Implement `$$text$$`
 - Add tests for `$$async$$` and `$$done()$$`
-- Add tests for `$$html$$`, `$$png$$`, `$$jpeg$$` and `$$mime$$`
-- Make `Task.action` default to `run`
+- Add tests for `$$html$$`, `$$png$$`, `$$jpeg$$`, `$$mime$$`, `$$mimer$$`, ...
 - Make `onSuccess`, `onError` callbacks options
 - Make `cursorPos` default to `code.length`
 - Add `Node.js` documentation
