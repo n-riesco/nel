@@ -248,7 +248,10 @@ session.run(task);
 
 # Announcements
 
-- `Session.executionCount` is deprecated. It will be removed in version 0.1.0.
+- `NEL` is in the process of being refactored to maximise the amount shared
+  amongst [ijavascript](https://n-riesco.github.io/ijavascript),
+  [jp-babel](https://github.com/n-riesco/jp-babel) and
+  [jp-coffeescript](https://github.com/n-riesco/jp-coffeescript).
 
 # Contributions
 
@@ -260,7 +263,6 @@ requests, ...
 
 # TODO
 
-- Remove `session.executionCount`
 - Implement `$$text$$`
 - Add tests for `$$async$$` and `$$done()$$`
 - Add tests for `$$html$$`, `$$png$$`, `$$jpeg$$`, `$$mime$$`, `$$mimer$$`, ...
