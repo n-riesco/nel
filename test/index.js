@@ -121,58 +121,52 @@ function testSessionRun(session, tests) {
     testNext(session, testCases.concat(tests));
 }
 
-function makeSessionRunTestCase(code, result, stdout, stderr) {
-    function makeErrorMessage() {
-        var messages = ["testSessionRun"];
-        for (var i = 0; i < arguments.length; i++) {
-            messages.push(arguments[i]);
-        }
-        return messages.join(": ");
-    }
-
+function makeSessionRunTestCase(code, expectedResult, stdout, stderr) {
     return function(session, tests) {
         var hasRun = [];
+        var executionResult;
 
-        var task = {
-            action: "run",
-            code: code,
-            beforeRun: function(session) {
-                hasRun.push("beforeRun");
-            },
-            afterRun: function(session) {
-                hasRun.push("afterRun");
-                check(session);
-            },
-            onSuccess: function(session) {
-                hasRun.push("onSuccess");
-            },
-            onError: function(session) {
-                hasRun.push("onError");
-            },
-        };
+        session.execute(code, onSuccess, onError, beforeRequest, afterRequest);
 
-        session.run(task);
+        function beforeRequest() {
+            hasRun.push("beforeRequest");
+        }
 
-        function check(session) {
-            if (session.result.error) {
+        function afterRequest() {
+            hasRun.push("afterRequest");
+            checkResult();
+        }
+
+        function onSuccess(result) {
+            hasRun.push("onSuccess");
+            executionResult = result;
+        }
+
+        function onError(error) {
+            hasRun.push("onError");
+            executionResult = error;
+        }
+
+        function checkResult() {
+            if (expectedResult.error) {
                 assert.deepEqual(
-                    hasRun, ["beforeRun", "onError", "afterRun"],
+                    hasRun, ["beforeRequest", "onError", "afterRequest"],
                     makeErrorMessage("Unexpected callbacks were run", hasRun)
                 );
             } else {
                 assert.deepEqual(
-                    hasRun, ["beforeRun", "onSuccess", "afterRun"],
+                    hasRun, ["beforeRequest", "onSuccess", "afterRequest"],
                     makeErrorMessage("Unexpected callbacks were run", hasRun)
                 );
             }
 
             assert.deepEqual(
-                session.result, result,
+                executionResult, expectedResult,
                 makeErrorMessage(
                     "Unexpected result",
-                    util.inspect(session.result),
+                    util.inspect(executionResult),
                     "Expected",
-                    util.inspect(result)
+                    util.inspect(expectedResult)
                 )
             );
 
@@ -201,6 +195,14 @@ function makeSessionRunTestCase(code, result, stdout, stderr) {
             );
 
             testNext(session, tests);
+        }
+
+        function makeErrorMessage() {
+            var messages = ["testSessionRun"];
+            for (var i = 0; i < arguments.length; i++) {
+                messages.push(arguments[i]);
+            }
+            return messages.join(": ");
         }
     };
 }
@@ -264,47 +266,39 @@ function testSessionInspect(session, tests) {
     testNext(session, testCases.concat(tests));
 }
 
-function makeSessionInspectTestCase(code, cursorPos, result) {
-    function makeErrorMessage() {
-        var messages = ["testSessionInspect"];
-        for (var i = 0; i < arguments.length; i++) {
-            messages.push(arguments[i]);
-        }
-        return messages.join(": ");
-    }
-
+function makeSessionInspectTestCase(code, cursorPos, expectedResult) {
     return function(session, tests) {
         // First run the code, then inspect the expression at cursorPos.
-        var task = {
-            action: "run",
-            code: code,
-            onSuccess: function(session) {
-                session.inspect(code, cursorPos, check, onError);
-            },
-            onError: onError,
-        };
+        session.execute(code, onExecutionSuccess, function(error) {
+            assert(false, makeErrorMessage("Execution error:", error));
+        });
 
-        session.run(task);
-
-        function onError(session) {
-            assert(
-                false,
-                makeErrorMessage("Evaluation error", session.result)
-            );
+        function onExecutionSuccess(executionResult) {
+            session.inspect(code, cursorPos, check, function(error) {
+                assert(false, makeErrorMessage("Inspection error:", error));
+            });
         }
 
-        function check(session) {
+        function check(inspectionResult) {
             assert.deepEqual(
-                session.result, result,
+                inspectionResult, expectedResult,
                 makeErrorMessage(
                     "Unexpected result",
-                    util.inspect(result),
+                    util.inspect(inspectionResult),
                     "Expected",
-                    util.inspect(session.result)
+                    util.inspect(expectedResult)
                 )
             );
 
             testNext(session, tests);
+        }
+
+        function makeErrorMessage() {
+            var messages = ["testSessionInspect"];
+            for (var i = 0; i < arguments.length; i++) {
+                messages.push(arguments[i]);
+            }
+            return messages.join(": ");
         }
     };
 }
@@ -334,37 +328,34 @@ function testSessionComplete(session, tests) {
     testNext(session, testCases.concat(tests));
 }
 
-function makeSessionCompleteTestCase(code, cursorPos, result) {
-    function makeErrorMessage() {
-        var messages = ["testSessionComplete"];
-        for (var i = 0; i < arguments.length; i++) {
-            messages.push(arguments[i]);
-        }
-        return messages.join(": ");
-    }
-
+function makeSessionCompleteTestCase(code, cursorPos, expectedResult) {
     return function(session, tests) {
         session.complete(code, cursorPos, check, onError);
 
-        function onError(session) {
-            assert(
-                false,
-                makeErrorMessage("Error", session.result)
-            );
+        function onError(error) {
+            assert(false, makeErrorMessage("Completion error:", error));
         }
 
-        function check(session) {
+        function check(completionResult) {
             assert.deepEqual(
-                session.result, result,
+                completionResult, expectedResult,
                 makeErrorMessage(
                     "Unexpected result",
-                    util.inspect(result),
+                    util.inspect(completionResult),
                     "Expected",
-                    util.inspect(session.result)
+                    util.inspect(expectedResult)
                 )
             );
 
             testNext(session, tests);
+        }
+
+        function makeErrorMessage() {
+            var messages = ["testSessionComplete"];
+            for (var i = 0; i < arguments.length; i++) {
+                messages.push(arguments[i]);
+            }
+            return messages.join(": ");
         }
     };
 }

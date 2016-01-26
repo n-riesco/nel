@@ -12,12 +12,6 @@ expressions.  See the section on usage for more details.
 Please, consider this repository as an alpha release. The API is likely to
 change.
 
-## Install
-
-```sh
-npm install nel
-```
-
 ## Main Features
 
 - Run Javascript code within a `Node.js` session. The result can be formatted
@@ -36,6 +30,24 @@ npm install nel
   return information such as type or even documentation (currently, only for
   Javascript builtins).
 
+## Announcements
+
+- `NEL` is in the process of being refactored to maximise the amount shared
+  amongst [ijavascript](https://n-riesco.github.io/ijavascript),
+  [jp-babel](https://github.com/n-riesco/jp-babel) and
+  [jp-coffeescript](https://github.com/n-riesco/jp-coffeescript).
+- `NEL v0.3`: New API (simplify API by hiding type module:nel~Task)
+- `NEL v0.2`: API change (removed Session#executionCount)
+- `NEL v0.1.1`: New experimental `$$mimer$$` and `$$defaultMimer$$`
+- `NEL v0.1`: Output change (changed function output)
+- `NEL v0.0`: Initial release
+
+## Install
+
+```sh
+npm install nel
+```
+
 ## Usage
 
 ### Hello, World!
@@ -48,30 +60,20 @@ var nel = require("nel");
 var session = new nel.Session();
 
 // Define callbacks to handle results and errors
-function printResult(session) { console.log(session.result); }
-function printError(session) { console.log(session.result); }
+var onSuccess = function printResult(result) { console.log(result); }
+var onError = function printError(error) { console.log(error); }
 
-// Setup a task
-var task = {
-    action: "run",
-    code: "['Hello', 'World!'].join(', ');",
-    onSuccess: printResult,
-    onError: printError,
-};
-
-// Run task
-session.run(task);
-
+// Example of an execution request
 // Output:
 // { mime: { 'text/plain': '\'Hello, World!\'' } }
+var code = "['Hello', 'World!'].join(', ');";
+session.execute(code, onSuccess, onError);
 ```
 
 ### Exceptions
 
 ```js
-task.code = "throw new Error('Hello, World!');";
-session.run(task);
-
+// Example of throwing an exception
 // Output:
 // { error:
 //  { ename: 'Error',
@@ -84,21 +86,23 @@ session.run(task);
 //       '    at process.EventEmitter.emit (events.js:98:17)',
 //       '    at handleMessage (child_process.js:318:10)',
 //       '    at Pipe.channel.onread (child_process.js:345:11)' ] } }
+code = "throw new Error('Hello, World!');";
+session.execute(code, onSuccess, onError);
 ```
 
 ### `stdout` and `stderr`
 
 ```js
-task.code = "console.log('Hello, World!');"
-session.run(task);
-
+// Example of use of console.log()
 // Output:
 // { mime: { 'text/plain': 'undefined' } }
+code = "console.log('Hello, World!');";
+session.execute(code, onSuccess, onError);
 
-process.stdout.write(session.stdout.read());
-
+// Example of reading the session stdout
 // Output:
 // Hello, World!
+process.stdout.write(session.stdout.read());
 ```
 
 ### MIME output
@@ -107,30 +111,28 @@ A session may return results in MIME formats other than 'text/plain'.
 
 ```js
 // HTML example
-task.code = "$$html$$ = \"<div style='background-color:olive;width:50px;height:50px'></div>\";";
-session.run(task);
-
 // Output:
 // { mime: { 'text/html': '<div style=\'background-color:olive;width:50px;height:50px\'></div>' } }
+code = "$$html$$ = \"<div style='background-color:olive;width:50px;height:50px'></div>\";";
+session.execute(code, onSuccess, onError);
 
 // SVG example
-task.code = "$$svg$$ = \"<svg><rect width=80 height=80 style='fill: orange;'/></svg>\";";
-session.run(task);
-
 // Output:
 // { mime: { 'image/svg+xml': '<svg><rect width=80 height=80 style=\'fill: orange;\'/></svg>' } }
+code = "$$svg$$ = \"<svg><rect width=80 height=80 style='fill: orange;'/></svg>\";";
+session.execute(code, onSuccess, onError);
 
 // PNG example
-task.code = "$$png$$ = require('fs').readFileSync('image.png').toString('base64');"
-session.run(task);
+code = "$$png$$ = require('fs').readFileSync('image.png').toString('base64');";
+session.execute(code, onSuccess, onError);
 
 // JPEG example
-task.code = "$$jpeg$$ = require('fs').readFileSync('image.jpg').toString('base64');"
-session.run(task);
+code = "$$jpeg$$ = require('fs').readFileSync('image.jpg').toString('base64');";
+session.execute(code, onSuccess, onError);
 
 // MIME example
-task.code = "$$mime$$ = {\"text/html\": \"<div style='background-color:olive;width:50px;height:50px'></div>\"};"
-session.run(task);
+code = "$$mime$$ = {\"text/html\": \"<div style='background-color:olive;width:50px;height:50px'></div>\"};";
+session.execute(code, onSuccess, onError);
 ```
 
 ### Generate a completion list
@@ -140,10 +142,10 @@ completion options:
 
 ```js
 session.complete(
-    "set",        // code
-    3,            // cursorPos
-    printResult,  // onSucess
-    printError    // onError
+    "set",     // code
+    3,         // cursorPos
+    onSuccess, // onSucess
+    onError    // onError
 );
 
 // Output:
@@ -161,10 +163,10 @@ code:
 
 ```js
 session.complete(
-    "set",        // code
-    2,            // cursorPos
-    printResult,  // onSucess
-    printError    // onError
+    "set",     // code
+    2,         // cursorPos
+    onSuccess, // onSucess
+    onError    // onError
 );
 
 // Output:
@@ -182,17 +184,13 @@ session.complete(
 `NEL` can parse simple Javascript variable expressions and inspect their value:
 
 ```js
-task.code = "var a = [1, 2, 3];";
-session.run(task);
-
-// Output:
-// { mime: { 'text/plain': 'undefined' } }
-
+code = "var a = [1, 2, 3];";
+session.execute(code, null, onError);
 session.inspect(
-    task.code,    // code
-    5,            // cursorPos
-    printResult,  // onSucess
-    printError    // onError
+    code,      // code
+    5,         // cursorPos
+    onSuccess, // onSucess
+    onError    // onError
 );
 
 // Output:
@@ -211,10 +209,10 @@ Javascript builtins):
 
 ```js
 session.inspect(
-    "parseInt",   // code
-    8,            // cursorPos
-    printResult,  // onSucess
-    printError    // onError
+    "parseInt", // code
+    8,          // cursorPos
+    onSuccess,  // onSucess
+    onError     // onError
 );
 
 // Output:
@@ -232,13 +230,13 @@ session.inspect(
 //      usage: 'parseInt(string, radix);' } }
 ```
 
-### Callbacks `beforeRun` and `afterRun`
+### Callbacks `beforeRequest` and `afterRequest`
 
 ```js
-task.beforeRun = function(session) { console.log("This callback runs first"); }
-task.code = "'I run next'";
-task.afterRun = function(session) { console.log("This callback runs last"); }
-session.run(task);
+var beforeRequest = function() { console.log("This callback runs first"); }
+code = "'I run next'";
+var afterRequest = function() { console.log("This callback runs last"); }
+session.execute(code, onSuccess, onError, beforeRequest, afterRequest);
 
 // Output:
 // This callback runs first
@@ -246,14 +244,7 @@ session.run(task);
 // This callback runs last
 ```
 
-# Announcements
-
-- `NEL` is in the process of being refactored to maximise the amount shared
-  amongst [ijavascript](https://n-riesco.github.io/ijavascript),
-  [jp-babel](https://github.com/n-riesco/jp-babel) and
-  [jp-coffeescript](https://github.com/n-riesco/jp-coffeescript).
-
-# Contributions
+## Contributions
 
 First of all, thank you for taking the time to contribute. Please, read
 [CONTRIBUTING.md](https://github.com/n-riesco/nel/blob/master/CONTRIBUTING.md)
@@ -261,11 +252,11 @@ and use the [issue tracker](https://github.com/n-riesco/nel/issues) for
 any contributions: support requests, bug reports, enhancement requests, pull
 requests, ...
 
-# TODO
+## TODO
 
-- Implement `$$text$$`
+- Implement `$$text$$`, `$$update$$()`
 - Add tests for `$$async$$` and `$$done()$$`
 - Add tests for `$$html$$`, `$$png$$`, `$$jpeg$$`, `$$mime$$`, `$$mimer$$`, ...
-- Make `onSuccess`, `onError` callbacks options
-- Make `cursorPos` default to `code.length`
+- Session#complete and Session#inspect: make `cursorPos` argument default to
+  `code.length`
 - Add `Node.js` documentation
