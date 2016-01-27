@@ -145,6 +145,469 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
         
                 
+
+    
+
+    <h4 class="name" id="~AfterRunCB"><span class="type-signature"></span>AfterRunCB<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Callback invoked after running a task (regardless of success or failure)
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line185">line 185</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li>module:nel~Task</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+
+    
+
+    <h4 class="name" id="~BeforeRunCB"><span class="type-signature"></span>BeforeRunCB<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Callback invoked before running a task
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line178">line 178</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li>module:nel~Task</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="~CompletionResult">CompletionResult</h4>
+
+
+
+
+<div class="description">
+    Results of a completion request
+</div>
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>completion</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>list</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;String></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Array of completion matches</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>code</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Javascript code to be completed</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cursorPos</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Cursor position within
+                                             `completion.code`</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>matchedText</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Text within `completion.code`
+                                             that has been matched</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cursorStart</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Position of the start of
+                                             `completion.matchedText` within
+                                             `completion.code`</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cursorEnd</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Position of the end of
+                                             `completion.matchedText` within
+                                             `completion.code`</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line299">line 299</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-nel-Session.html#complete">module:nel~Session#complete</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+            
+                
 <h4 class="name" id="~Config">Config</h4>
 
 
@@ -266,379 +729,13 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
             
                 
-
-    
-
-    <h4 class="name" id="~KillCB"><span class="type-signature"></span>KillCB<span class="signature">(code<span class="signature-attributes">nullable</span>, signal<span class="signature-attributes">nullable</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    Callback run after the session server has been killed
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>code</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Exit code from session server if exited normally</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>signal</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Signal passed to kill the session server</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line529">line 529</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="module-nel-Session.html#kill">module:nel~Session#kill</a></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-                
-
-    
-
-    <h4 class="name" id="~RestartCB"><span class="type-signature"></span>RestartCB<span class="signature">(code<span class="signature-attributes">nullable</span>, signal<span class="signature-attributes">nullable</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    Callback run after restart
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>code</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Exit code from old session if exited normally</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>signal</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Signal passed to kill the old session</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line553">line 553</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="module-nel-Session.html#restart">module:nel~Session#restart</a></li>
-        </ul>
-    </dd>
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-                
-<h4 class="name" id="~Result">Result</h4>
+<h4 class="name" id="~ErrorResult">ErrorResult</h4>
 
 
 
 
 <div class="description">
-    Result of running a piece of code within a session.
+    Error thrown when running a task within a session
 </div>
 
 
@@ -661,8 +758,6 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -671,104 +766,6 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>mime</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Defined only for successful "run"
-                                       actions
-                <h6>Properties</h6>
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>"text/plain"</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Result in plain text</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>"text/html"</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Result in HTML format</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
     
 
         <tr>
@@ -781,18 +778,10 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last">Defined only for failed "run" actions
+            <td class="description last">
                 <h6>Properties</h6>
 
 <table class="props">
@@ -890,66 +879,85 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
         </tr>
 
     
-
-        <tr>
-            
-                <td class="name"><code>names</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;String></span>
+    </tbody>
+</table>
 
 
-            
-            </td>
 
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
 
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Defined only for successful
-                                       "getAllPropertyNames" actions. It
-                                       contains an array with all the
-                                       property names of the result of
-                                       evaluating a piece of Javascript code.</td>
-        </tr>
+<dl class="details">
 
     
 
-        <tr>
-            
-                <td class="name"><code>completion</code></td>
-            
+    
 
-            <td class="type">
-            
-            </td>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line263">line 263</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-nel-Session.html#execute">module:nel~Session#execute</a>, <a href="module-nel-Session.html#complete">module:nel~Session#complete</a>,
+and <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
 
             
-                <td class="attributes">
                 
-                    &lt;optional><br>
-                
+<h4 class="name" id="~ExecutionResult">ExecutionResult</h4>
 
-                
-                </td>
-            
 
-            
 
-            <td class="description last">Defined only for successful calls to
-                                       <a href="module-nel-Session.html#complete">module:nel~Session#complete</a>.
-                <h6>Properties</h6>
+
+<div class="description">
+    MIME representations of the result of an execution request
+</div>
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
 
 <table class="props">
     <thead>
@@ -973,15 +981,10 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
         <tr>
             
-                <td class="name"><code>list</code></td>
+                <td class="name"><code>mime</code></td>
             
 
             <td class="type">
-            
-                
-<span class="param-type">Array.&lt;String></span>
-
-
             
             </td>
 
@@ -989,61 +992,34 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
             
 
-            <td class="description last">Array of completion possibilities</td>
-        </tr>
+            <td class="description last">
+                <h6>Properties</h6>
 
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
     
 
         <tr>
             
-                <td class="name"><code>code</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Javascript code to be completed</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>cursorPos</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Integer</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Cursor position within
-                                       `completion.code`.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>matchedText</code></td>
+                <td class="name"><code>"text/plain"</code></td>
             
 
             <td class="type">
@@ -1052,82 +1028,6 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 <span class="param-type">String</span>
 
 
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Text within `completion.code` that has
-                                       been matched.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>cursorStart</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Integer</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Position of the start of
-                                       `completion.matchedText` within
-                                       `completion.code`.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>cursorEnd</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Integer</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Position of the end of
-                                       `completion.matchedText` within
-                                       `completion.code`.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>inspection</code></td>
-            
-
-            <td class="type">
             
             </td>
 
@@ -1143,12 +1043,169 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
             
 
-            <td class="description last">Defined only for successful "inspect"
-                                       actions or successful calls to <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a>. It
-                                       provides a description of the object
-                                       resulting of evaluating a piece of
-                                       Javascript code or a Javascript
-                                       expression.
+            <td class="description last">Result in plain text</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>"text/html"</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Result in HTML format</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line288">line 288</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-nel-Session.html#execute">module:nel~Session#execute</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="~InspectionResult">InspectionResult</h4>
+
+
+
+
+<div class="description">
+    Results of an inspection request
+</div>
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>inspection</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
                 <h6>Properties</h6>
 
 <table class="props">
@@ -1227,7 +1284,7 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
             
 
             <td class="description last">Cursor position within
-                                       `inspection.code`.</td>
+                                             `inspection.code`.</td>
         </tr>
 
     
@@ -1256,8 +1313,9 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
             
 
-            <td class="description last">Text within `inspection.code` that has
-                                       been matched as an expression.</td>
+            <td class="description last">Text within `inspection.code`
+                                             that has been matched as an
+                                             expression.</td>
         </tr>
 
     
@@ -1346,8 +1404,9 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
             
 
-            <td class="description last">List of constructors (not defined for
-                                       `null` or `undefined`).</td>
+            <td class="description last">List of constructors (not
+                                             defined for `null` or
+                                             `undefined`).</td>
         </tr>
 
     
@@ -1378,7 +1437,7 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
             
 
-            <td class="description last">Length property</td>
+            <td class="description last">Length property (if present)</td>
         </tr>
 
     
@@ -1411,9 +1470,9 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
             
 
-            <td class="description last">Defined only for calls to module:nel~inspect that succeed to
-                                       find documentation for a Javascript
-                                       expression.
+            <td class="description last">Defined only for calls to module:nel~inspect that succeed
+                                             to find documentation for a
+                                             Javascript expression
                 <h6>Properties</h6>
 
 <table class="props">
@@ -1568,7 +1627,7 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line188">line 188</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line320">line 320</a>
     </li></ul></dd>
     
 
@@ -1578,7 +1637,7 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><a href="module-nel-Session.html#result">module:nel~Session#result</a></li>
+            <li><a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li>
         </ul>
     </dd>
     
@@ -1596,14 +1655,197 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
     
 
-    <h4 class="name" id="~RunCB"><span class="type-signature"></span>RunCB<span class="signature">(session)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="~KillCB"><span class="type-signature"></span>KillCB<span class="signature">(code<span class="signature-attributes">opt</span>, signal<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    Session Callback
+    Callback run after the session server has been killed
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>code</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Exit code from session server if exited normally</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>signal</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Signal passed to kill the session server</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line245">line 245</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-nel-Session.html#kill">module:nel~Session#kill</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+
+    
+
+    <h4 class="name" id="~OnCompletionSuccessCB"><span class="type-signature"></span>OnCompletionSuccessCB<span class="signature">(result)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Callback run with the result of an completion request
 </div>
 
 
@@ -1639,13 +1881,13 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
         <tr>
             
-                <td class="name"><code>session</code></td>
+                <td class="name"><code>result</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="module-nel-Session.html">module:nel~Session</a></span>
+<span class="param-type"><a href="module-nel.html#~CompletionResult">module:nel~CompletionResult</a></span>
 
 
             
@@ -1655,7 +1897,7 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
             
 
-            <td class="description last">Session</td>
+            <td class="description last">Completion request results</td>
         </tr>
 
     
@@ -1696,7 +1938,7 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line181">line 181</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line220">line 220</a>
     </li></ul></dd>
     
 
@@ -1706,7 +1948,7 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><a href="module-nel.html#~Task">module:nel~Task</a></li>
+            <li><a href="module-nel-Session.html#complete">module:nel~Session#complete</a></li>
         </ul>
     </dd>
     
@@ -1731,14 +1973,17 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
 
             
                 
-<h4 class="name" id="~Task">Task</h4>
 
+    
+
+    <h4 class="name" id="~OnErrorCB"><span class="type-signature"></span>OnErrorCB<span class="signature">(error)</span><span class="type-signature"></span></h4>
+
+    
 
 
 
 <div class="description">
-    Combination of a piece of code to be run within a session and all the
-associated callbacks.
+    Callback invoked with the error obtained while running a task
 </div>
 
 
@@ -1747,11 +1992,12 @@ associated callbacks.
 
 
 
-    <h5 class="subsection-title">Properties:</h5>
 
+
+    <h5>Parameters:</h5>
     
 
-<table class="props">
+<table class="params">
     <thead>
     <tr>
         
@@ -1760,8 +2006,6 @@ associated callbacks.
 
         <th>Type</th>
 
-        
-        <th>Attributes</th>
         
 
         
@@ -1775,192 +2019,30 @@ associated callbacks.
 
         <tr>
             
-                <td class="name"><code>action</code></td>
+                <td class="name"><code>error</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><a href="module-nel.html#~ErrorResult">module:nel~ErrorResult</a></span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last">Type of task:
-                                            "run" to evaluate a piece of code
-                                            and return the result;
-                                            "getAllPropertyNames" to evaluate
-                                            a piece of code and return all
-                                            the property names of the result;
-                                            "inspect" to inspect an object
-                                            and return information such as
-                                            the list of constructors,
-                                            string representation, length...</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>code</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Code to evaluate</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>beforeRun</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-nel.html#~RunCB">module:nel~RunCB</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Called before the code</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>afterRun</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-nel.html#~RunCB">module:nel~RunCB</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Called after the code</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>onSuccess</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-nel.html#~RunCB">module:nel~RunCB</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Called if no errors occurred</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>onError</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-nel.html#~RunCB">module:nel~RunCB</a></span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Called if an error occurred</td>
+            <td class="description last"></td>
         </tr>
 
     
     </tbody>
 </table>
+
+
 
 
 
@@ -1994,7 +2076,7 @@ associated callbacks.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line156">line 156</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line192">line 192</a>
     </li></ul></dd>
     
 
@@ -2004,7 +2086,652 @@ associated callbacks.
     <dt class="tag-see">See:</dt>
     <dd class="tag-see">
         <ul>
-            <li><a href="module-nel-Session.html#run">module:nel~Session#run</a></li>
+            <li>module:nel~Task</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+
+    
+
+    <h4 class="name" id="~OnExecutionSuccessCB"><span class="type-signature"></span>OnExecutionSuccessCB<span class="signature">(result)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Callback run with the result of an execution request
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>result</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-nel.html#~ExecutionResult">module:nel~ExecutionResult</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">MIME representations</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line212">line 212</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-nel-Session.html#execute">module:nel~Session#execute</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+
+    
+
+    <h4 class="name" id="~OnInspectionSuccessCB"><span class="type-signature"></span>OnInspectionSuccessCB<span class="signature">(result)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Callback run with the result of an inspection request
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>result</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-nel.html#~InspectionResult">module:nel~InspectionResult</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Inspection request result</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line228">line 228</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="~OnSuccessCB">OnSuccessCB</h4>
+
+
+
+
+<div class="description">
+    Callback invoked with the result of a task
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="module-nel.html#~OnExecutionSuccessCB">module:nel~OnExecutionSuccessCB</a></span>
+|
+
+<span class="param-type"><a href="module-nel.html#~OnCompletionSuccessCB">module:nel~OnCompletionSuccessCB</a></span>
+|
+
+<span class="param-type"><a href="module-nel.html#~OnInspectionSuccessCB">module:nel~OnInspectionSuccessCB</a></span>
+|
+
+<span class="param-type">module:nel~OnNameListSuccessCB</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line200">line 200</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li>module:nel~Task</li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+            
+                
+
+    
+
+    <h4 class="name" id="~RestartCB"><span class="type-signature"></span>RestartCB<span class="signature">(code<span class="signature-attributes">opt</span>, signal<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Callback run after the session server has been restarted
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>code</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Exit code from old session if exited normally</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>signal</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Signal passed to kill the old session</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line254">line 254</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-nel-Session.html#restart">module:nel~Session#restart</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+                
+<h4 class="name" id="~SuccessResult">SuccessResult</h4>
+
+
+
+
+<div class="description">
+    Request result
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="module-nel.html#~ExecutionResult">module:nel~ExecutionResult</a></span>
+|
+
+<span class="param-type"><a href="module-nel.html#~CompletionResult">module:nel~CompletionResult</a></span>
+|
+
+<span class="param-type"><a href="module-nel.html#~InspectionResult">module:nel~InspectionResult</a></span>
+|
+
+<span class="param-type">module:nel~NameListResult</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line276">line 276</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li>module:nel~Task</li>
         </ul>
     </dd>
     
@@ -2037,7 +2764,7 @@ associated callbacks.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Thu Dec 03 2015 22:47:26 GMT+0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Wed Jan 27 2016 17:23:36 GMT+0000 (GMT)
 </footer>
 
 <script> prettyPrint(); </script>

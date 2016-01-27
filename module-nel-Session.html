@@ -200,78 +200,6 @@
 
         
             
-<h4 class="name" id="result"><span class="type-signature"></span>result<span class="type-signature"> :<a href="module-nel.html#~Result">module:nel~Result</a></span></h4>
-
-
-
-
-<div class="description">
-    Last result
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type"><a href="module-nel.html#~Result">module:nel~Result</a></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line83">line 83</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
 <h4 class="name" id="stderr"><span class="type-signature"></span>stderr<span class="type-signature"> :module:stream~Readable</span></h4>
 
 
@@ -326,7 +254,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line130">line 130</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line124">line 124</a>
     </li></ul></dd>
     
 
@@ -398,7 +326,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line118">line 118</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line112">line 112</a>
     </li></ul></dd>
     
 
@@ -470,7 +398,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line124">line 124</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line118">line 118</a>
     </li></ul></dd>
     
 
@@ -497,7 +425,7 @@
 
     
 
-    <h4 class="name" id="complete"><span class="type-signature"></span>complete<span class="signature">(code, cursorPos, onSuccess, onError)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="complete"><span class="type-signature"></span>complete<span class="signature">(code, cursorPos, onCompletionSuccess<span class="signature-attributes">opt</span>, onError<span class="signature-attributes">opt</span>, beforeRun<span class="signature-attributes">opt</span>, afterRun<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -528,6 +456,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -553,6 +483,14 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
@@ -576,33 +514,51 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">Cursor position within `code`</td>
+            <td class="description last">Cursor position in code</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>onSuccess</code></td>
+                <td class="name"><code>onCompletionSuccess</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="module-nel.html#~RunCB">module:nel~RunCB</a></span>
+<span class="param-type">OnCompletionSuccessCB</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">Called if no errors occurred</td>
+            <td class="description last">Callback</td>
         </tr>
 
     
@@ -615,17 +571,93 @@
             <td class="type">
             
                 
-<span class="param-type"><a href="module-nel.html#~RunCB">module:nel~RunCB</a></span>
+<span class="param-type">OnErrorCB</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">Called if an error occurred</td>
+            <td class="description last">Callback</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>beforeRun</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BeforeRunCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Callback</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>afterRun</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">AfterRunCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Callback</td>
         </tr>
 
     
@@ -666,7 +698,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line363">line 363</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line473">line 473</a>
     </li></ul></dd>
     
 
@@ -697,14 +729,14 @@
 
     
 
-    <h4 class="name" id="inspect"><span class="type-signature"></span>inspect<span class="signature">(code, cursorPos, onSuccess, onError)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="execute"><span class="type-signature"></span>execute<span class="signature">(code, onExecutionSuccess<span class="signature-attributes">opt</span>, onError<span class="signature-attributes">opt</span>, beforeRun<span class="signature-attributes">opt</span>, afterRun<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    Inspect a Javascript expression
+    Make an execution request
 </div>
 
 
@@ -727,6 +759,8 @@
 
         <th>Type</th>
 
+        
+        <th>Attributes</th>
         
 
         
@@ -753,56 +787,51 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">Javascript code</td>
+            <td class="description last">Code to execute in session</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>cursorPos</code></td>
+                <td class="name"><code>onExecutionSuccess</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Number</span>
+<span class="param-type">OnExecutionSuccessCB</span>
 
 
             
             </td>
 
             
-
-            
-
-            <td class="description last">Cursor position within `code`</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>onSuccess</code></td>
-            
-
-            <td class="type">
-            
+                <td class="attributes">
                 
-<span class="param-type"><a href="module-nel.html#~RunCB">module:nel~RunCB</a></span>
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
+            
 
             
-            </td>
 
-            
-
-            
-
-            <td class="description last">Called if no errors occurred</td>
+            <td class="description last">Callback</td>
         </tr>
 
     
@@ -815,17 +844,93 @@
             <td class="type">
             
                 
-<span class="param-type"><a href="module-nel.html#~RunCB">module:nel~RunCB</a></span>
+<span class="param-type">OnErrorCB</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">Called if an error occurred</td>
+            <td class="description last">Callback</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>beforeRun</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BeforeRunCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Callback</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>afterRun</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">AfterRunCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Callback</td>
         </tr>
 
     
@@ -866,7 +971,311 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line445">line 445</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line446">line 446</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="inspect"><span class="type-signature"></span>inspect<span class="signature">(code, cursorPos, onInspectionSuccess<span class="signature-attributes">opt</span>, onError<span class="signature-attributes">opt</span>, beforeRun<span class="signature-attributes">opt</span>, afterRun<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+<div class="description">
+    Inspect a Javascript expression
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>code</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Javascript code</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cursorPos</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Cursor position in code</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onInspectionSuccess</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">OnInspectionSuccessCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Callback</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onError</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">OnErrorCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Callback</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>beforeRun</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BeforeRunCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Callback</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>afterRun</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">AfterRunCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Callback</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line588">line 588</a>
     </li></ul></dd>
     
 
@@ -1057,7 +1466,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line518">line 518</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line695">line 695</a>
     </li></ul></dd>
     
 
@@ -1246,138 +1655,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line544">line 544</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="run"><span class="type-signature"></span>run<span class="signature">(task)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-<div class="description">
-    Run a task
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>task</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-nel.html#~Task">module:nel~Task</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Task to be run</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line295">line 295</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line713">line 713</a>
     </li></ul></dd>
     
 
@@ -1425,7 +1703,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Thu Dec 03 2015 22:47:26 GMT+0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Wed Jan 27 2016 17:23:36 GMT+0000 (GMT)
 </footer>
 
 <script> prettyPrint(); </script>
