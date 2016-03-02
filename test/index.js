@@ -125,8 +125,17 @@ function makeSessionRunTestCase(code, expectedResult, stdout, stderr) {
     return function(session, tests) {
         var hasRun = [];
         var executionResult;
+        var stdoutResult = "";
+        var stderrResult = "";
 
-        session.execute(code, onSuccess, onError, beforeRequest, afterRequest);
+        session.execute(code, {
+            onSuccess: onSuccess,
+            onError: onError,
+            beforeRun: beforeRequest,
+            afterRun: afterRequest,
+            onStdout: onStdout,
+            onStderr: onStderr,
+        });
 
         function beforeRequest() {
             hasRun.push("beforeRequest");
@@ -145,6 +154,14 @@ function makeSessionRunTestCase(code, expectedResult, stdout, stderr) {
         function onError(error) {
             hasRun.push("onError");
             executionResult = error;
+        }
+
+        function onStdout(data) {
+            stdoutResult += data;
+        }
+
+        function onStderr(data) {
+            stderrResult += data;
         }
 
         function checkResult() {
@@ -170,29 +187,29 @@ function makeSessionRunTestCase(code, expectedResult, stdout, stderr) {
                 )
             );
 
-            var expected = stdout || null;
-            var obtained = session.stdout.read();
-            assert.equal(
-                obtained, expected,
-                makeErrorMessage(
-                    "Unexpected stdout",
-                    obtained,
-                    "Expected",
-                    expected
-                )
-            );
+            if (stdout) {
+                assert.equal(
+                    stdoutResult, stdout,
+                    makeErrorMessage(
+                        "Unexpected stdout",
+                        stdoutResult,
+                        "Expected",
+                        stdout
+                    )
+                );
+            }
 
-            expected = stderr || null;
-            obtained = session.stderr.read();
-            assert.equal(
-                obtained, expected,
-                makeErrorMessage(
-                    "Unexpected stderr",
-                    obtained,
-                    "Expected",
-                    expected
-                )
-            );
+            if (stderr) {
+                assert.equal(
+                    stderrResult, stderr,
+                    makeErrorMessage(
+                        "Unexpected stderr",
+                        stderrResult,
+                        "Expected",
+                        stderr
+                    )
+                );
+            }
 
             testNext(session, tests);
         }
@@ -269,13 +286,19 @@ function testSessionInspect(session, tests) {
 function makeSessionInspectTestCase(code, cursorPos, expectedResult) {
     return function(session, tests) {
         // First run the code, then inspect the expression at cursorPos.
-        session.execute(code, onExecutionSuccess, function(error) {
-            assert(false, makeErrorMessage("Execution error:", error));
+        session.execute(code, {
+            onSuccess: onExecutionSuccess,
+            onError: function onError(error) {
+                assert(false, makeErrorMessage("Execution error:", error));
+            },
         });
 
         function onExecutionSuccess(executionResult) {
-            session.inspect(code, cursorPos, check, function(error) {
-                assert(false, makeErrorMessage("Inspection error:", error));
+            session.inspect(code, cursorPos, {
+                onSuccess: check,
+                onError: function onError(error) {
+                    assert(false, makeErrorMessage("Inspection error:", error));
+                },
             });
         }
 
@@ -330,7 +353,10 @@ function testSessionComplete(session, tests) {
 
 function makeSessionCompleteTestCase(code, cursorPos, expectedResult) {
     return function(session, tests) {
-        session.complete(code, cursorPos, check, onError);
+        session.complete(code, cursorPos, {
+            onSuccess: check,
+            onError: onError,
+        });
 
         function onError(error) {
             assert(false, makeErrorMessage("Completion error:", error));

@@ -36,6 +36,7 @@ change.
   amongst [ijavascript](https://n-riesco.github.io/ijavascript),
   [jp-babel](https://github.com/n-riesco/jp-babel) and
   [jp-coffeescript](https://github.com/n-riesco/jp-coffeescript).
+- `NEL v0.4`: New API (added onStdout and onStderr callbacks)
 - `NEL v0.3`: New API (simplify API by hiding type module:nel~Task)
 - `NEL v0.2`: API change (removed Session#executionCount)
 - `NEL v0.1.1`: New experimental `$$mimer$$` and `$$defaultMimer$$`
@@ -59,15 +60,14 @@ var nel = require("nel");
 // Setup a new Javascript session
 var session = new nel.Session();
 
-// Define callbacks to handle results and errors
-var onSuccess = function printResult(result) { console.log(result); }
-var onError = function printError(error) { console.log(error); }
-
 // Example of an execution request
 // Output:
 // { mime: { 'text/plain': '\'Hello, World!\'' } }
 var code = "['Hello', 'World!'].join(', ');";
-session.execute(code, onSuccess, onError);
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});
 ```
 
 ### Exceptions
@@ -87,7 +87,10 @@ session.execute(code, onSuccess, onError);
 //       '    at handleMessage (child_process.js:318:10)',
 //       '    at Pipe.channel.onread (child_process.js:345:11)' ] } }
 code = "throw new Error('Hello, World!');";
-session.execute(code, onSuccess, onError);
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});
 ```
 
 ### `stdout` and `stderr`
@@ -95,14 +98,16 @@ session.execute(code, onSuccess, onError);
 ```js
 // Example of use of console.log()
 // Output:
+// Hello, World!
+//
 // { mime: { 'text/plain': 'undefined' } }
 code = "console.log('Hello, World!');";
-session.execute(code, onSuccess, onError);
-
-// Example of reading the session stdout
-// Output:
-// Hello, World!
-process.stdout.write(session.stdout.read());
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+    onStdout: console.log,
+    onStderr: console.error,
+});
 ```
 
 ### MIME output
@@ -114,25 +119,40 @@ A session may return results in MIME formats other than 'text/plain'.
 // Output:
 // { mime: { 'text/html': '<div style=\'background-color:olive;width:50px;height:50px\'></div>' } }
 code = "$$html$$ = \"<div style='background-color:olive;width:50px;height:50px'></div>\";";
-session.execute(code, onSuccess, onError);
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});
 
 // SVG example
 // Output:
 // { mime: { 'image/svg+xml': '<svg><rect width=80 height=80 style=\'fill: orange;\'/></svg>' } }
 code = "$$svg$$ = \"<svg><rect width=80 height=80 style='fill: orange;'/></svg>\";";
-session.execute(code, onSuccess, onError);
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});
 
 // PNG example
 code = "$$png$$ = require('fs').readFileSync('image.png').toString('base64');";
-session.execute(code, onSuccess, onError);
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});
 
 // JPEG example
 code = "$$jpeg$$ = require('fs').readFileSync('image.jpg').toString('base64');";
-session.execute(code, onSuccess, onError);
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});
 
 // MIME example
 code = "$$mime$$ = {\"text/html\": \"<div style='background-color:olive;width:50px;height:50px'></div>\"};";
-session.execute(code, onSuccess, onError);
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});
 ```
 
 ### Generate a completion list
@@ -144,8 +164,10 @@ completion options:
 session.complete(
     "set",     // code
     3,         // cursorPos
-    onSuccess, // onSucess
-    onError    // onError
+    {
+        onSuccess: console.log,
+        onError: console.error,
+    }
 );
 
 // Output:
@@ -165,8 +187,10 @@ code:
 session.complete(
     "set",     // code
     2,         // cursorPos
-    onSuccess, // onSucess
-    onError    // onError
+    {
+        onSuccess: console.log,
+        onError: console.error,
+    }
 );
 
 // Output:
@@ -189,8 +213,10 @@ session.execute(code, null, onError);
 session.inspect(
     code,      // code
     5,         // cursorPos
-    onSuccess, // onSucess
-    onError    // onError
+    {
+        onSuccess: console.log,
+        onError: console.error,
+    }
 );
 
 // Output:
@@ -211,8 +237,10 @@ Javascript builtins):
 session.inspect(
     "parseInt", // code
     8,          // cursorPos
-    onSuccess,  // onSucess
-    onError     // onError
+    {
+        onSuccess: console.log,
+        onError: console.error,
+    }
 );
 
 // Output:
@@ -230,13 +258,18 @@ session.inspect(
 //      usage: 'parseInt(string, radix);' } }
 ```
 
-### Callbacks `beforeRequest` and `afterRequest`
+### Callbacks `beforeRun` and `afterRun`
 
 ```js
-var beforeRequest = function() { console.log("This callback runs first"); }
+var beforeRun = function() { console.log("This callback runs first"); }
 code = "'I run next'";
-var afterRequest = function() { console.log("This callback runs last"); }
-session.execute(code, onSuccess, onError, beforeRequest, afterRequest);
+var afterRun = function() { console.log("This callback runs last"); }
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+    beforeRun: beforeRun,
+    afterRun: afterRun,
+});
 
 // Output:
 // This callback runs first
@@ -254,7 +287,8 @@ requests, ...
 
 ## TODO
 
-- Implement `$$text$$`, `$$update$$()`
+- Implement convention to customise the output of class instances
+- Implement `$$text$$`
 - Add tests for `$$async$$` and `$$done()$$`
 - Add tests for `$$html$$`, `$$png$$`, `$$jpeg$$`, `$$mime$$`, `$$mimer$$`, ...
 - Session#complete and Session#inspect: make `cursorPos` argument default to
