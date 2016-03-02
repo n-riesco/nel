@@ -193,226 +193,6 @@
     
 
     
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="stderr"><span class="type-signature"></span>stderr<span class="type-signature"> :module:stream~Readable</span></h4>
-
-
-
-
-<div class="description">
-    A readable stream that represents the session stderr
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">module:stream~Readable</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line139">line 139</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="stdin"><span class="type-signature"></span>stdin<span class="type-signature"> :module:stream~Writable</span></h4>
-
-
-
-
-<div class="description">
-    A writeable stream that represents the session stdin
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">module:stream~Writable</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line127">line 127</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="stdout"><span class="type-signature"></span>stdout<span class="type-signature"> :module:stream~Readable</span></h4>
-
-
-
-
-<div class="description">
-    A readable stream that represents the session stdout
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">module:stream~Readable</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line133">line 133</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -422,7 +202,7 @@
 
     
 
-    <h4 class="name" id="complete"><span class="type-signature"></span>complete<span class="signature">(code, cursorPos, onCompletionSuccess<span class="signature-attributes">opt</span>, onError<span class="signature-attributes">opt</span>, beforeRun<span class="signature-attributes">opt</span>, afterRun<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="complete"><span class="type-signature"></span>complete<span class="signature">(code, cursorPos, callbacks<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -529,7 +309,56 @@
 
         <tr>
             
-                <td class="name"><code>onCompletionSuccess</code></td>
+                <td class="name"><code>callbacks</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>onSuccess</code></td>
             
 
             <td class="type">
@@ -555,7 +384,7 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -588,7 +417,7 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -621,7 +450,7 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -654,7 +483,80 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onStdout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">OnStdioCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onStderr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">OnStdioCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -695,7 +597,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line488">line 488</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line643">line 643</a>
     </li></ul></dd>
     
 
@@ -726,7 +628,7 @@
 
     
 
-    <h4 class="name" id="execute"><span class="type-signature"></span>execute<span class="signature">(code, onExecutionSuccess<span class="signature-attributes">opt</span>, onError<span class="signature-attributes">opt</span>, beforeRun<span class="signature-attributes">opt</span>, afterRun<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="execute"><span class="type-signature"></span>execute<span class="signature">(code, callbacks<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -802,7 +704,56 @@
 
         <tr>
             
-                <td class="name"><code>onExecutionSuccess</code></td>
+                <td class="name"><code>callbacks</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>onSuccess</code></td>
             
 
             <td class="type">
@@ -828,7 +779,7 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -861,7 +812,7 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -894,7 +845,7 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -927,7 +878,80 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onStdout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">OnStdioCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onStderr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">OnStdioCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -968,7 +992,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line461">line 461</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line598">line 598</a>
     </li></ul></dd>
     
 
@@ -999,7 +1023,7 @@
 
     
 
-    <h4 class="name" id="inspect"><span class="type-signature"></span>inspect<span class="signature">(code, cursorPos, onInspectionSuccess<span class="signature-attributes">opt</span>, onError<span class="signature-attributes">opt</span>, beforeRun<span class="signature-attributes">opt</span>, afterRun<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="inspect"><span class="type-signature"></span>inspect<span class="signature">(code, cursorPos, callbacks<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -1106,7 +1130,56 @@
 
         <tr>
             
-                <td class="name"><code>onInspectionSuccess</code></td>
+                <td class="name"><code>callbacks</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>onSuccess</code></td>
             
 
             <td class="type">
@@ -1132,7 +1205,7 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -1165,7 +1238,7 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -1198,7 +1271,7 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -1231,7 +1304,80 @@
 
             
 
-            <td class="description last">Callback</td>
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onStdout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">OnStdioCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>onStderr</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">OnStdioCB</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -1272,7 +1418,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line603">line 603</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line780">line 780</a>
     </li></ul></dd>
     
 
@@ -1463,7 +1609,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line710">line 710</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line924">line 924</a>
     </li></ul></dd>
     
 
@@ -1652,7 +1798,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line728">line 728</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line942">line 942</a>
     </li></ul></dd>
     
 
@@ -1700,7 +1846,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Feb 09 2016 09:10:51 GMT+0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Mar 02 2016 14:53:05 GMT+0000 (GMT)
 </footer>
 
 <script> prettyPrint(); </script>

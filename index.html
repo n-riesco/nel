@@ -76,6 +76,7 @@ Javascript builtins).</li>
 amongst <a href="https://n-riesco.github.io/ijavascript">ijavascript</a>,
 <a href="https://github.com/n-riesco/jp-babel">jp-babel</a> and
 <a href="https://github.com/n-riesco/jp-coffeescript">jp-coffeescript</a>.</li>
+<li><code>NEL v0.4</code>: New API (added onStdout and onStderr callbacks)</li>
 <li><code>NEL v0.3</code>: New API (simplify API by hiding type module:nel~Task)</li>
 <li><code>NEL v0.2</code>: API change (removed Session#executionCount)</li>
 <li><code>NEL v0.1.1</code>: New experimental <code>$$mimer$$</code> and <code>$$defaultMimer$$</code></li>
@@ -88,15 +89,14 @@ var nel = require(&quot;nel&quot;);
 // Setup a new Javascript session
 var session = new nel.Session();
 
-// Define callbacks to handle results and errors
-var onSuccess = function printResult(result) { console.log(result); }
-var onError = function printError(error) { console.log(error); }
-
 // Example of an execution request
 // Output:
 // { mime: { 'text/plain': '\'Hello, World!\'' } }
 var code = &quot;['Hello', 'World!'].join(', ');&quot;;
-session.execute(code, onSuccess, onError);</code></pre><h3>Exceptions</h3><pre class="prettyprint source lang-js"><code>// Example of throwing an exception
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});</code></pre><h3>Exceptions</h3><pre class="prettyprint source lang-js"><code>// Example of throwing an exception
 // Output:
 // { error:
 //  { ename: 'Error',
@@ -110,45 +110,67 @@ session.execute(code, onSuccess, onError);</code></pre><h3>Exceptions</h3><pre c
 //       '    at handleMessage (child_process.js:318:10)',
 //       '    at Pipe.channel.onread (child_process.js:345:11)' ] } }
 code = &quot;throw new Error('Hello, World!');&quot;;
-session.execute(code, onSuccess, onError);</code></pre><h3><code>stdout</code> and <code>stderr</code></h3><pre class="prettyprint source lang-js"><code>// Example of use of console.log()
-// Output:
-// { mime: { 'text/plain': 'undefined' } }
-code = &quot;console.log('Hello, World!');&quot;;
-session.execute(code, onSuccess, onError);
-
-// Example of reading the session stdout
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});</code></pre><h3><code>stdout</code> and <code>stderr</code></h3><pre class="prettyprint source lang-js"><code>// Example of use of console.log()
 // Output:
 // Hello, World!
-process.stdout.write(session.stdout.read());</code></pre><h3>MIME output</h3><p>A session may return results in MIME formats other than 'text/plain'.</p>
+//
+// { mime: { 'text/plain': 'undefined' } }
+code = &quot;console.log('Hello, World!');&quot;;
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+    onStdout: console.log,
+    onStderr: console.error,
+});</code></pre><h3>MIME output</h3><p>A session may return results in MIME formats other than 'text/plain'.</p>
 <pre class="prettyprint source lang-js"><code>// HTML example
 // Output:
 // { mime: { 'text/html': '&lt;div style=\'background-color:olive;width:50px;height:50px\'>&lt;/div>' } }
 code = &quot;$$html$$ = \&quot;&lt;div style='background-color:olive;width:50px;height:50px'>&lt;/div>\&quot;;&quot;;
-session.execute(code, onSuccess, onError);
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});
 
 // SVG example
 // Output:
 // { mime: { 'image/svg+xml': '&lt;svg>&lt;rect width=80 height=80 style=\'fill: orange;\'/>&lt;/svg>' } }
 code = &quot;$$svg$$ = \&quot;&lt;svg>&lt;rect width=80 height=80 style='fill: orange;'/>&lt;/svg>\&quot;;&quot;;
-session.execute(code, onSuccess, onError);
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});
 
 // PNG example
 code = &quot;$$png$$ = require('fs').readFileSync('image.png').toString('base64');&quot;;
-session.execute(code, onSuccess, onError);
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});
 
 // JPEG example
 code = &quot;$$jpeg$$ = require('fs').readFileSync('image.jpg').toString('base64');&quot;;
-session.execute(code, onSuccess, onError);
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});
 
 // MIME example
 code = &quot;$$mime$$ = {\&quot;text/html\&quot;: \&quot;&lt;div style='background-color:olive;width:50px;height:50px'>&lt;/div>\&quot;};&quot;;
-session.execute(code, onSuccess, onError);</code></pre><h3>Generate a completion list</h3><p><code>NEL</code> can parse simple Javascript variable expressions and generate a list of
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+});</code></pre><h3>Generate a completion list</h3><p><code>NEL</code> can parse simple Javascript variable expressions and generate a list of
 completion options:</p>
 <pre class="prettyprint source lang-js"><code>session.complete(
     &quot;set&quot;,     // code
     3,         // cursorPos
-    onSuccess, // onSucess
-    onError    // onError
+    {
+        onSuccess: console.log,
+        onError: console.error,
+    }
 );
 
 // Output:
@@ -163,8 +185,10 @@ code:</p>
 <pre class="prettyprint source lang-js"><code>session.complete(
     &quot;set&quot;,     // code
     2,         // cursorPos
-    onSuccess, // onSucess
-    onError    // onError
+    {
+        onSuccess: console.log,
+        onError: console.error,
+    }
 );
 
 // Output:
@@ -180,8 +204,10 @@ session.execute(code, null, onError);
 session.inspect(
     code,      // code
     5,         // cursorPos
-    onSuccess, // onSucess
-    onError    // onError
+    {
+        onSuccess: console.log,
+        onError: console.error,
+    }
 );
 
 // Output:
@@ -197,8 +223,10 @@ Javascript builtins):</p>
 <pre class="prettyprint source lang-js"><code>session.inspect(
     &quot;parseInt&quot;, // code
     8,          // cursorPos
-    onSuccess,  // onSucess
-    onError     // onError
+    {
+        onSuccess: console.log,
+        onError: console.error,
+    }
 );
 
 // Output:
@@ -213,10 +241,15 @@ Javascript builtins):</p>
 //   doc:
 //    { description: 'The parseInt() function parses a string argument and returns an integer of the specified radix (the base in mathematical numeral systems).',
 //      url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt',
-//      usage: 'parseInt(string, radix);' } }</code></pre><h3>Callbacks <code>beforeRequest</code> and <code>afterRequest</code></h3><pre class="prettyprint source lang-js"><code>var beforeRequest = function() { console.log(&quot;This callback runs first&quot;); }
+//      usage: 'parseInt(string, radix);' } }</code></pre><h3>Callbacks <code>beforeRun</code> and <code>afterRun</code></h3><pre class="prettyprint source lang-js"><code>var beforeRun = function() { console.log(&quot;This callback runs first&quot;); }
 code = &quot;'I run next'&quot;;
-var afterRequest = function() { console.log(&quot;This callback runs last&quot;); }
-session.execute(code, onSuccess, onError, beforeRequest, afterRequest);
+var afterRun = function() { console.log(&quot;This callback runs last&quot;); }
+session.execute(code, {
+    onSuccess: console.log,
+    onError: console.error,
+    beforeRun: beforeRun,
+    afterRun: afterRun,
+});
 
 // Output:
 // This callback runs first
@@ -227,7 +260,8 @@ and use the <a href="https://github.com/n-riesco/nel/issues">issue tracker</a> f
 any contributions: support requests, bug reports, enhancement requests, pull
 requests, ...</p>
 <h2>TODO</h2><ul>
-<li>Implement <code>$$text$$</code>, <code>$$update$$()</code></li>
+<li>Implement convention to customise the output of class instances</li>
+<li>Implement <code>$$text$$</code></li>
 <li>Add tests for <code>$$async$$</code> and <code>$$done()$$</code></li>
 <li>Add tests for <code>$$html$$</code>, <code>$$png$$</code>, <code>$$jpeg$$</code>, <code>$$mime$$</code>, <code>$$mimer$$</code>, ...</li>
 <li>Session#complete and Session#inspect: make <code>cursorPos</code> argument default to
@@ -250,7 +284,7 @@ requests, ...</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Feb 09 2016 09:10:51 GMT+0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Mar 02 2016 14:53:05 GMT+0000 (GMT)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -75,10 +75,10 @@ var DEBUG = global.DEBUG || false;
 
 var log;
 if (DEBUG) {
+    var util = require("util");
     var console = require("console");
     log = function log() {
-        process.stderr.write("NEL: ");
-        console.error.apply(this, arguments);
+        console.error("NEL:", util.format.apply(this, arguments));
     };
 } else {
     try {
@@ -134,12 +134,37 @@ function Session(nelConfig) {
     this._tasks = [];
 
     /**
+     * Execution context (each request is assigned a context so that any data
+     * transferred over the session stdio streams can be passed onto the
+     * appropriate callbacks)
+     * @member {number}
+     * @private
+     */
+    this._contextId = 1;
+
+    /**
+     * Table of stdout callbacks per context
+     * @member {Object.&lt;number, module:nel~OnStdioCB>}
+     * @private
+     */
+    this._contextStdout = {};
+
+    /**
+     * Table of stderr callbacks per context
+     * @member {Object.&lt;number, module:nel~OnStdioCB>}
+     * @private
+     */
+    this._contextStderr = {};
+
+    /**
      * Session configuration
      * @member {module:nel~Config}
      * @private
      */
     this._config = nelConfig || {};
-    this._config.stdio = ["pipe", "pipe", "pipe", "ipc"];
+    this._config.stdio = DEBUG ?
+        [process.stdin, process.stdout, process.stderr, "ipc"] :
+        ["ignore", "ignore", "ignore", "ipc"];
 
     /**
      * Server that runs the code requests for this session
@@ -147,24 +172,6 @@ function Session(nelConfig) {
      * @private
      */
     this._server = spawn(Session._command, Session._args, this._config);
-
-    /**
-     * A writeable stream that represents the session stdin
-     * @member {module:stream~Writable}
-     */
-    this.stdin = this._server.stdin;
-
-    /**
-     * A readable stream that represents the session stdout
-     * @member {module:stream~Readable}
-     */
-    this.stdout = this._server.stdout;
-
-    /**
-     * A readable stream that represents the session stderr
-     * @member {module:stream~Readable}
-     */
-    this.stderr = this._server.stderr;
 
     /**
      * True after calling {@link module:nel~Session.kill}, otherwise false
@@ -214,8 +221,19 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * @property {module:nel~OnErrorCB}   [onError]   Called if an error occurred
  * @property {module:nel~BeforeRunCB} [beforeRun] Called before running the code
  * @property {module:nel~AfterRunCB}  [afterRun]  Called after running the code
+ * @property {module:nel~OnStdioCB}   [onStdout]  Called if process.stdout data
+ * @property {module:nel~OnStdioCB}   [onStderr]  Called if process.stderr data
  *
  * @private
+ */
+
+/**
+ * Callback invoked with the data written on `process.stdout` or
+ * `process.stderr` after a request to the server.
+ * @see {@link module:nel~Task}
+ *
+ * @callback OnStdioCB
+ * @param {string} data
  */
 
 /**
@@ -257,7 +275,7 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * @see {@link module:nel~Session#execute}
  *
  * @callback OnExecutionSuccessCB
- * @param {module:nel~ExecutionResult} result  MIME representations
+ * @param {module:nel~ExecutionMessage} result  MIME representations
  */
 
 /**
@@ -265,7 +283,7 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * @see {@link module:nel~Session#complete}
  *
  * @callback OnCompletionSuccessCB
- * @param {module:nel~CompletionResult} result  Completion request results
+ * @param {module:nel~CompletionMessage} result  Completion request results
  */
 
 /**
@@ -273,14 +291,14 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * @see {@link module:nel~Session#inspect}
  *
  * @callback OnInspectionSuccessCB
- * @param {module:nel~InspectionResult} result Inspection request result
+ * @param {module:nel~InspectionMessage} result Inspection request result
  */
 
 /**
  * Callback run with the list of all the property names
  *
  * @callback OnNameListSuccessCB
- * @param {module:nel~NameListResult} result  List of all the property names
+ * @param {module:nel~NameListMessage} result  List of all the property names
  *
  * @private
  */
@@ -304,12 +322,42 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  */
 
 /**
+ * Message received from the session server
+ *
+ * @typedef Message {
+ *     module:nel~StdoutMessage |
+ *     module:nel~StderrMessage |
+ *     module:nel~ErrorMessage |
+ *     module:nel~SuccessMessage
+ * }
+ */
+
+/**
+ * Stdout message received from the session server
+ *
+ * @typedef StdoutMessage
+ *
+ * @property {string}   stdout  Data written on the session stdout
+ * @property {number}   id      Execution context id
+ */
+
+/**
+ * Stderr message received from the session server
+ *
+ * @typedef StderrMessage
+ *
+ * @property {number}   id      Execution context id
+ * @property {string}   stderr  Data written on the session stderr
+ */
+
+/**
  * Error thrown when running a task within a session
  * @see {@link module:nel~Session#execute}, {@link module:nel~Session#complete},
  * and {@link module:nel~Session#inspect}
  *
- * @typedef ErrorResult
+ * @typedef ErrorMessage
  *
+ * @property {number}   id               Execution context id
  * @property            error
  * @property {String}   error.ename      Error name
  * @property {String}   error.evalue     Error value
@@ -318,13 +366,14 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
 
 /**
  * Request result
- * @see {@link module:nel~Task}
+ * @see {@link module:nel~Session#execute}, {@link module:nel~Session#complete},
+ * and {@link module:nel~Session#inspect}
  *
- * @typedef SuccessResult {
- *     module:nel~ExecutionResult |
- *     module:nel~CompletionResult |
- *     module:nel~InspectionResult |
- *     module:nel~NameListResult
+ * @typedef SuccessMessage {
+ *     module:nel~ExecutionMessage |
+ *     module:nel~CompletionMessage |
+ *     module:nel~InspectionMessage |
+ *     module:nel~NameListMessage
  * }
  */
 
@@ -332,8 +381,9 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * MIME representations of the result of an execution request
  * @see {@link module:nel~Session#execute}
  *
- * @typedef ExecutionResult
+ * @typedef ExecutionMessage
  *
+ * @property {number} id                   Execution context id
  * @property          mime
  * @property {String} [mime."text/plain"]  Result in plain text
  * @property {String} [mime."text/html"]   Result in HTML format
@@ -343,8 +393,9 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * Results of a completion request
  * @see {@link module:nel~Session#complete}
  *
- * @typedef CompletionResult
+ * @typedef CompletionMessage
  *
+ * @property {number}   id                      Execution context id
  * @property            completion
  * @property {String[]} completion.list         Array of completion matches
  * @property {String}   completion.code         Javascript code to be completed
@@ -364,8 +415,9 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * Results of an inspection request
  * @see {@link module:nel~Session#inspect}
  *
- * @typedef InspectionResult
+ * @typedef InspectionMessage
  *
+ * @property {number}   id                      Execution context id
  * @property            inspection
  * @property {String}   inspection.code         Javascript code to be inspected
  * @property {Integer}  inspection.cursorPos    Cursor position within
@@ -394,8 +446,9 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * Results of an "getAllPropertyNames" action
  * @see {@link module:nel~Task}
  *
- * @typedef NameListResult
+ * @typedef NameListMessage
  *
+ * @property {number}   id     Execution context id
  * @property {String[]} names  List of all property names
  *
  * @private
@@ -404,25 +457,32 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
 /**
  * Callback to handle messages from the session server
  *
- * @param {module:nel~SuccessResult} message Result of last execution request
+ * @param {module:nel~Message} message
  * @private
  */
 Session.prototype._onMessage = function(message) {
-    log("SESSION: MESSAGE", message);
+    log("SESSION: RESPONSE:", message);
 
-    if (message.hasOwnProperty("error")) {
-        if (this._task.onError) {
-            this._task.onError(message);
-        }
+    var contextId = message.id;
+
+    if (message.hasOwnProperty("stdout")) {
+        this._onStdout(message);
+        return;
+    } else if (message.hasOwnProperty("stderr")) {
+        this._onStderr(message);
+        return;
+    } else if (message.hasOwnProperty("error")) {
+        this._onError(message);
     } else {
-        if (this._task.onSuccess) {
-            this._task.onSuccess(message);
-        }
+        this._onSuccess(message);
     }
 
     if (this._task.afterRun) {
         this._task.afterRun();
     }
+
+    delete this._contextStdout[contextId];
+    delete this._contextStderr[contextId];
 
     // Are there any tasks left on the queue?
     if (this._tasks.length > 0) {
@@ -430,6 +490,72 @@ Session.prototype._onMessage = function(message) {
     } else {
         this._task = null;
     }
+};
+
+/**
+ * Callback to handle stdout messages from the session server
+ *
+ * @param {module:nel~StdoutMessage} message
+ * @private
+ */
+Session.prototype._onStdout = function(message) {
+    var onStdout = this._contextStdout[message.id];
+    if (!onStdout) {
+        log("SESSION: MESSAGE: Missing stdout callback");
+        return;
+    }
+
+    onStdout(message.stdout);
+};
+
+/**
+ * Callback to handle stderr messages from the session server
+ *
+ * @param {module:nel~StderrMessage} message
+ * @private
+ */
+Session.prototype._onStderr = function(message) {
+    var onStderr = this._contextStderr[message.id];
+    if (!onStderr) {
+        log("SESSION: MESSAGE: Missing stderr callback");
+        return;
+    }
+
+    onStderr(message.stderr);
+};
+
+/**
+ * Callback to handle error messages from the session server
+ *
+ * @param {module:nel~ErrorMessage} message
+ * @private
+ */
+Session.prototype._onError = function(message) {
+    var onError = this._task.onError;
+    if (!onError) {
+        log("SESSION: MESSAGE: Missing onError callback");
+        return;
+    }
+
+    delete message.id;
+    onError(message);
+};
+
+/**
+ * Callback to handle success messages from the session server
+ *
+ * @param {module:nel~SuccessMessage} message
+ * @private
+ */
+Session.prototype._onSuccess = function(message) {
+    var onSuccess = this._task.onSuccess;
+    if (!onSuccess) {
+        log("SESSION: MESSAGE: Missing onSuccess callback");
+        return;
+    }
+
+    delete message.id;
+    onSuccess(message);
 };
 
 /**
@@ -464,7 +590,15 @@ Session.prototype._runNow = function(task) {
         this._task.beforeRun();
     }
 
-    this._server.send([this._task.action, this._task.code]);
+    var contextId = this._contextId++;
+    if (task.onStdout) {
+        this._contextStdout[contextId] = task.onStdout;
+    }
+    if (task.onStderr) {
+        this._contextStderr[contextId] = task.onStderr;
+    }
+
+    this._server.send([this._task.action, this._task.code, contextId]);
 };
 
 /**
@@ -481,26 +615,44 @@ Session.prototype._runLater = function(task) {
  * Make an execution request
  *
  * @param {String}               code                 Code to execute in session
- * @param {OnExecutionSuccessCB} [onExecutionSuccess] Callback
- * @param {OnErrorCB}            [onError]            Callback
- * @param {BeforeRunCB}          [beforeRun]          Callback
- * @param {AfterRunCB}           [afterRun]           Callback
+ * @param                        [callbacks]
+ * @param {OnExecutionSuccessCB} [callbacks.onSuccess]
+ * @param {OnErrorCB}            [callbacks.onError]
+ * @param {BeforeRunCB}          [callbacks.beforeRun]
+ * @param {AfterRunCB}           [callbacks.afterRun]
+ * @param {OnStdioCB}            [callbacks.onStdout]
+ * @param {OnStdioCB}            [callbacks.onStderr]
  */
-Session.prototype.execute = function(
-    code,
-    onExecutionSuccess, onError,
-    beforeRun, afterRun
-) {
+Session.prototype.execute = function(code, callbacks) {
     log("SESSION: EXECUTE:", code);
 
-    this._run({
+    var task = {
         action: "run",
         code: code,
-        onSuccess: onExecutionSuccess,
-        onError: onError,
-        beforeRun: beforeRun,
-        afterRun: afterRun,
-    });
+    };
+
+    if (callbacks) {
+        if (callbacks.onSuccess) {
+            task.onSuccess = callbacks.onSuccess;
+        }
+        if (callbacks.onError) {
+            task.onError = callbacks.onError;
+        }
+        if (callbacks.beforeRun) {
+            task.beforeRun = callbacks.beforeRun;
+        }
+        if (callbacks.afterRun) {
+            task.afterRun = callbacks.afterRun;
+        }
+        if (callbacks.onStdout) {
+            task.onStdout = callbacks.onStdout;
+        }
+        if (callbacks.onStderr) {
+            task.onStderr = callbacks.onStderr;
+        }
+    }
+
+    this._run(task);
 };
 
 /**
@@ -508,16 +660,15 @@ Session.prototype.execute = function(
  *
  * @param {String}                code                  Javascript code
  * @param {Number}                cursorPos             Cursor position in code
- * @param {OnCompletionSuccessCB} [onCompletionSuccess] Callback
- * @param {OnErrorCB}             [onError]             Callback
- * @param {BeforeRunCB}           [beforeRun]           Callback
- * @param {AfterRunCB}            [afterRun]            Callback
+ * @param                         [callbacks]
+ * @param {OnCompletionSuccessCB} [callbacks.onSuccess]
+ * @param {OnErrorCB}             [callbacks.onError]
+ * @param {BeforeRunCB}           [callbacks.beforeRun]
+ * @param {AfterRunCB}            [callbacks.afterRun]
+ * @param {OnStdioCB}             [callbacks.onStdout]
+ * @param {OnStdioCB}             [callbacks.onStderr]
  */
-Session.prototype.complete = function(
-    code, cursorPos,
-    onCompletionSuccess, onError,
-    beforeRun, afterRun
-) {
+Session.prototype.complete = function(code, cursorPos, callbacks) {
     var matchList = [];
     var matchedText;
     var cursorStart;
@@ -527,12 +678,105 @@ Session.prototype.complete = function(
     log("SESSION: COMPLETE: expression", expression);
 
     if (expression === null) {
-        matchedText = "";
-        cursorStart = cursorPos;
-        cursorEnd = cursorPos;
+        if (callbacks) {
+            if (callbacks.beforeRun) {
+                callbacks.beforeRun();
+            }
 
-        if (onCompletionSuccess) {
-            onCompletionSuccess({
+            if (callbacks.onSuccess) {
+                callbacks.onSuccess({
+                    completion: {
+                        list: matchList,
+                        code: code,
+                        cursorPos: cursorPos,
+                        matchedText: "",
+                        cursorStart: cursorPos,
+                        cursorEnd: cursorPos,
+                    },
+                });
+            }
+
+            if (callbacks.afterRun) {
+                callbacks.afterRun();
+            }
+        }
+
+        return;
+    }
+
+    var task = {
+        action: "getAllPropertyNames",
+        code: (expression.scope === "") ? "global" : expression.scope,
+    };
+
+    if (callbacks) {
+        if (callbacks.onError) {
+            task.onError = callbacks.onError;
+        }
+        if (callbacks.beforeRun) {
+            task.beforeRun = callbacks.beforeRun;
+        }
+        if (callbacks.afterRun) {
+            task.afterRun = callbacks.afterRun;
+        }
+        if (callbacks.onStdout) {
+            task.onStdout = callbacks.onStdout;
+        }
+        if (callbacks.onStderr) {
+            task.onStderr = callbacks.onStderr;
+        }
+    }
+
+    task.onSuccess = function(result) {
+        // append list of all property names
+        matchList = matchList.concat(result.names);
+
+        // append list of reserved words
+        if (expression.scope === "") {
+            matchList = matchList.concat(javascriptKeywords);
+        }
+
+        // filter matches
+        if (expression.selector) {
+            matchList = matchList.filter(function(e) {
+                return e.lastIndexOf(expression.selector, 0) === 0;
+            });
+        }
+
+        // append expression.rightOp to each match
+        var left = expression.scope + expression.leftOp;
+        var right = expression.rightOp;
+        if (left || right) {
+            matchList = matchList.map(function(e) {
+                return left + e + right;
+            });
+        }
+
+        // find range of text that should be replaced
+        if (matchList.length > 0) {
+            var shortestMatch = matchList.reduce(function(p, c) {
+                return p.length &lt;= c.length ? p : c;
+            });
+
+            cursorStart = code.indexOf(expression.matchedText);
+            cursorEnd = cursorStart;
+            var cl = code.length;
+            var ml = shortestMatch.length;
+            for (var i = 0; i &lt; ml &amp;&amp; cursorEnd &lt; cl; i++, cursorEnd++) {
+                if (shortestMatch.charAt(i) !== code.charAt(cursorEnd)) {
+                    break;
+                }
+            }
+        } else {
+            cursorStart = cursorPos;
+            cursorEnd = cursorPos;
+        }
+
+        // return completion results to the callback
+        matchedText = expression.matchedText;
+
+        if (callbacks &amp;&amp; callbacks.onSuccess) {
+            callbacks.onSuccess({
                 completion: {
                     list: matchList,
                     code: code,
@@ -543,78 +787,8 @@ Session.prototype.complete = function(
                 },
             });
         }
-
-        return;
-    }
-
-    var task = {
-        action: "getAllPropertyNames",
-        code: (expression.scope === "") ? "global" : expression.scope,
-        beforeRun: beforeRun,
-        afterRun: afterRun,
-        onSuccess: function(result) {
-            // append list of all property names
-            matchList = matchList.concat(result.names);
-
-            // append list of reserved words
-            if (expression.scope === "") {
-                matchList = matchList.concat(javascriptKeywords);
-            }
-
-            // filter matches
-            if (expression.selector) {
-                matchList = matchList.filter(function(e) {
-                    return e.lastIndexOf(expression.selector, 0) === 0;
-                });
-            }
-
-            // append expression.rightOp to each match
-            var left = expression.scope + expression.leftOp;
-            var right = expression.rightOp;
-            if (left || right) {
-                matchList = matchList.map(function(e) {
-                    return left + e + right;
-                });
-            }
-
-            // find range of text that should be replaced
-            if (matchList.length > 0) {
-                var shortestMatch = matchList.reduce(function(p, c) {
-                    return p.length &lt;= c.length ? p : c;
-                });
-
-                cursorStart = code.indexOf(expression.matchedText);
-                cursorEnd = cursorStart;
-                var cl = code.length;
-                var ml = shortestMatch.length;
-                for (var i = 0; i &lt; ml &amp;&amp; cursorEnd &lt; cl; i++, cursorEnd++) {
-                    if (shortestMatch.charAt(i) !== code.charAt(cursorEnd)) {
-                        break;
-                    }
-                }
-            } else {
-                cursorStart = cursorPos;
-                cursorEnd = cursorPos;
-            }
-
-            // return completion results to the callback
-            matchedText = expression.matchedText;
-
-            if (onCompletionSuccess) {
-                onCompletionSuccess({
-                    completion: {
-                        list: matchList,
-                        code: code,
-                        cursorPos: cursorPos,
-                        matchedText: matchedText,
-                        cursorStart: cursorStart,
-                        cursorEnd: cursorEnd,
-                    },
-                });
-            }
-        },
-        onError: onError,
     };
+
     this._run(task);
 };
 
@@ -623,30 +797,39 @@ Session.prototype.complete = function(
  *
  * @param {String}                code                  Javascript code
  * @param {Number}                cursorPos             Cursor position in code
- * @param {OnInspectionSuccessCB} [onInspectionSuccess] Callback
- * @param {OnErrorCB}             [onError]             Callback
- * @param {BeforeRunCB}           [beforeRun]           Callback
- * @param {AfterRunCB}            [afterRun]            Callback
+ * @param                         [callbacks]
+ * @param {OnInspectionSuccessCB} [callbacks.onSuccess]
+ * @param {OnErrorCB}             [callbacks.onError]
+ * @param {BeforeRunCB}           [callbacks.beforeRun]
+ * @param {AfterRunCB}            [callbacks.afterRun]
+ * @param {OnStdioCB}             [callbacks.onStdout]
+ * @param {OnStdioCB}             [callbacks.onStderr]
  */
-Session.prototype.inspect = function(
-    code, cursorPos,
-    onInspectionSuccess, onError,
-    beforeRun, afterRun
-) {
+Session.prototype.inspect = function(code, cursorPos, callbacks) {
     var expression = parseExpression(code, cursorPos);
     log("SESSION: INSPECT: expression:", expression);
 
     if (expression === null) {
-        if (onInspectionSuccess) {
-            onInspectionSuccess({
-                inspection: {
-                    code: code,
-                    cursorPos: cursorPos,
-                    matchedText: "",
-                    string: "",
-                    type: ""
-                },
-            });
+        if (callbacks) {
+            if (callbacks.beforeRun) {
+                callbacks.beforeRun();
+            }
+
+            if (callbacks.onSuccess) {
+                callbacks.onSuccess({
+                    inspection: {
+                        code: code,
+                        cursorPos: cursorPos,
+                        matchedText: "",
+                        string: "",
+                        type: ""
+                    },
+                });
+            }
+
+            if (callbacks.afterRun) {
+                callbacks.afterRun();
+            }
         }
 
         return;
@@ -657,17 +840,32 @@ Session.prototype.inspect = function(
     var task = {
         action: "inspect",
         code: expression.matchedText,
-        beforeRun: beforeRun,
-        onSuccess: (function(result) {
-            inspectionResult = result;
-            inspectionResult.inspection.code = code;
-            inspectionResult.inspection.cursorPos = cursorPos;
-            inspectionResult.inspection.matchedText = expression.matchedText;
-
-            getDocumentationAndInvokeCallbacks.call(this);
-        }).bind(this),
-        onError: onError,
     };
+
+    if (callbacks) {
+        if (callbacks.onError) {
+            task.onError = callbacks.onError;
+        }
+        if (callbacks.beforeRun) {
+            task.beforeRun = callbacks.beforeRun;
+        }
+        if (callbacks.onStdout) {
+            task.onStdout = callbacks.onStdout;
+        }
+        if (callbacks.onStderr) {
+            task.onStderr = callbacks.onStderr;
+        }
+    }
+
+    task.onSuccess = (function(result) {
+        inspectionResult = result;
+        inspectionResult.inspection.code = code;
+        inspectionResult.inspection.cursorPos = cursorPos;
+        inspectionResult.inspection.matchedText = expression.matchedText;
+
+        getDocumentationAndInvokeCallbacks.call(this);
+    }).bind(this);
+
     this._run(task);
 
     return;
@@ -682,7 +880,16 @@ Session.prototype.inspect = function(
                 inspectionResult.doc = doc;
             }
 
-            invokeCallbacks();
+
+            if (callbacks) {
+                if (callbacks.onSuccess) {
+                    callbacks.onSuccess(inspectionResult);
+                }
+                if (callbacks.afterRun) {
+                    callbacks.afterRun();
+                }
+            }
+
             return;
         }
 
@@ -690,39 +897,46 @@ Session.prototype.inspect = function(
         var task = {
             action: "inspect",
             code: expression.scope,
-            beforeRun: beforeRun,
-            onSuccess: function(result) {
-                var constructorList = result.inspection.constructorList;
-                if (constructorList) {
-                    for (var i in constructorList) {
-                        var constructorName = constructorList[i];
-                        doc = getDocumentation(
-                            constructorName +
-                            ".prototype." +
-                            expression.selector
-                        );
-                        if (doc) {
-                            inspectionResult.doc = doc;
-                            break;
-                        }
+        };
+
+        if (callbacks) {
+            if (callbacks.onError) {
+                task.onError = callbacks.onError;
+            }
+            if (callbacks.afterRun) {
+                task.afterRun = callbacks.afterRun;
+            }
+            if (callbacks.onStdout) {
+                task.onStdout = callbacks.onStdout;
+            }
+            if (callbacks.onStderr) {
+                task.onStderr = callbacks.onStderr;
+            }
+        }
+
+        task.onSuccess = function(result) {
+            var constructorList = result.inspection.constructorList;
+            if (constructorList) {
+                for (var i in constructorList) {
+                    var constructorName = constructorList[i];
+                    doc = getDocumentation(
+                        constructorName +
+                        ".prototype." +
+                        expression.selector
+                    );
+                    if (doc) {
+                        inspectionResult.doc = doc;
+                        break;
                     }
                 }
+            }
 
-                invokeCallbacks();
-            },
-            onError: onError,
+            if (callbacks &amp;&amp; callbacks.onSuccess) {
+                callbacks.onSuccess(inspectionResult);
+            }
         };
+
         this._run(task);
-    }
-
-    function invokeCallbacks() {
-        if (onInspectionSuccess) {
-            onInspectionSuccess(inspectionResult);
-        }
-
-        if (afterRun) {
-            afterRun();
-        }
     }
 };
 
@@ -963,7 +1177,7 @@ function getDocumentation(name) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Feb 09 2016 09:10:51 GMT+0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Mar 02 2016 14:53:05 GMT+0000 (GMT)
 </footer>
 
 <script> prettyPrint(); </script>
