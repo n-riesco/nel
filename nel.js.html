@@ -120,13 +120,6 @@ paths.server = path.join(paths.thisFolder, "nel_server.js");
  */
 function Session(nelConfig) {
     /**
-     * Task currently being run (`null` if none)
-     * @member {?module:nel~Task}
-     * @private
-     */
-    this._task = null;
-
-    /**
      * Queue of tasks to be run
      * @member {module:nel~Task[]}
      * @private
@@ -134,27 +127,34 @@ function Session(nelConfig) {
     this._tasks = [];
 
     /**
-     * Execution context (each request is assigned a context so that any data
-     * transferred over the session stdio streams can be passed onto the
-     * appropriate callbacks)
+     * Task currently being run (null if the last running task has finished)
+     * @member {module:nel~Task}
+     * @private
+     */
+    this._currentTask = null;
+
+    /**
+     * Table of execution contexts
+     * (execution contexts are created to allow running multiple execution
+     * requests asynchronously)
+     * @member {Object.&lt;number, module:nel~Task>}
+     * @private
+     */
+    this._contextTable = {};
+
+    /**
+     * Last execution context id (0 if none have been created)
      * @member {number}
      * @private
      */
-    this._contextId = 1;
+    this._lastContextId = 0;
 
     /**
-     * Table of stdout callbacks per context
-     * @member {Object.&lt;number, module:nel~OnStdioCB>}
+     * Last run task (null if none have been run)
+     * @member {module:nel~Task}
      * @private
      */
-    this._contextStdout = {};
-
-    /**
-     * Table of stderr callbacks per context
-     * @member {Object.&lt;number, module:nel~OnStdioCB>}
-     * @private
-     */
-    this._contextStderr = {};
+    this._lastTask = null;
 
     /**
      * Session configuration
@@ -325,11 +325,46 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * Message received from the session server
  *
  * @typedef Message {
+ *     module:nel~AsyncMessage |
+ *     module:nel~EndMessage |
+ *     module:nel~LogMessage |
  *     module:nel~StdoutMessage |
  *     module:nel~StderrMessage |
  *     module:nel~ErrorMessage |
  *     module:nel~SuccessMessage
  * }
+ */
+
+/**
+ * Log message received from the session server
+ *
+ * @typedef LogMessage
+ *
+ * @property {string}   log     Message for logging purposes
+ *
+ * @private
+ */
+
+/**
+ * Message to indicate an execution context initiated the async execution mode
+ *
+ * @typedef AsyncMessage
+ *
+ * @property {number}   id      Execution context id
+ * @property {boolean}  async   Always set to true
+ *
+ * @private
+ */
+
+/**
+ * Message to indicate an execution context can be deleted
+ *
+ * @typedef EndMessage
+ *
+ * @property {number}   id      Execution context id
+ * @property {boolean}  end     Always set to true
+ *
+ * @private
  */
 
 /**
@@ -339,6 +374,8 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  *
  * @property {number}   id      Execution context id
  * @property {string}   stdout  Data written on the session stdout
+ *
+ * @private
  */
 
 /**
@@ -348,6 +385,8 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  *
  * @property {number}   id      Execution context id
  * @property {string}   stderr  Data written on the session stderr
+ *
+ * @private
  */
 
 /**
@@ -385,12 +424,14 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  *
  * @typedef ExecutionMessage
  *
- * @property {number} [id]                 Execution context id
- *                                         (deleted before passing the message
- *                                         onto the API user)
- * @property          mime
- * @property {String} [mime."text/plain"]  Result in plain text
- * @property {String} [mime."text/html"]   Result in HTML format
+ * @property {number}  [id]    Execution context id
+ *                             (deleted before the message reaches the API user)
+ * @property           mime
+ * @property {string}  [mime."text/plain"]    Result in plain text
+ * @property {string}  [mime."text/html"]     Result in HTML format
+ * @property {string}  [mime."image/svg+xml"] Result in SVG format
+ * @property {string}  [mime."image/png"]     Result as PNG in a base64 string
+ * @property {string}  [mime."image/jpeg"]    Result as JPEG in a base64 string
  */
 
 /**
@@ -457,8 +498,7 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * @typedef NameListMessage
  *
  * @property {number}   [id]   Execution context id
- *                             (deleted before passing the message onto the API
- *                             user)
+ *                             (deleted before the message reaches the API user)
  * @property {String[]} names  List of all property names
  *
  * @private
@@ -471,102 +511,105 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * @private
  */
 Session.prototype._onMessage = function(message) {
-    log("SESSION: RESPONSE:", message);
+    // Handle message.log
+    if (message.log) {
+        log(message.log);
+        return;
+    }
+    log("SESSION: MESSAGE:", message);
 
-    // Copy `message.id` before it is deleted from `message`
+    // Handle message.id
     var contextId = message.id;
-
-    if (message.hasOwnProperty("stdout")) {
-        this._onStdout(message);
-        return;
-    } else if (message.hasOwnProperty("stderr")) {
-        this._onStderr(message);
-        return;
-    } else if (message.hasOwnProperty("error")) {
-        this._onError(message);
-    } else {
-        this._onSuccess(message);
-    }
-
-    if (this._task.afterRun) {
-        this._task.afterRun();
-    }
-
-    delete this._contextStdout[contextId];
-    delete this._contextStderr[contextId];
-
-    // Are there any tasks left on the queue?
-    if (this._tasks.length > 0) {
-        this._runNow(this._tasks.shift());
-    } else {
-        this._task = null;
-    }
-};
-
-/**
- * Callback to handle stdout messages from the session server
- *
- * @param {module:nel~StdoutMessage} message
- * @private
- */
-Session.prototype._onStdout = function(message) {
-    var onStdout = this._contextStdout[message.id];
-    if (!onStdout) {
-        log("SESSION: MESSAGE: Missing stdout callback");
-        return;
-    }
-
-    onStdout(message.stdout);
-};
-
-/**
- * Callback to handle stderr messages from the session server
- *
- * @param {module:nel~StderrMessage} message
- * @private
- */
-Session.prototype._onStderr = function(message) {
-    var onStderr = this._contextStderr[message.id];
-    if (!onStderr) {
-        log("SESSION: MESSAGE: Missing stderr callback");
-        return;
-    }
-
-    onStderr(message.stderr);
-};
-
-/**
- * Callback to handle error messages from the session server
- *
- * @param {module:nel~ErrorMessage} message
- * @private
- */
-Session.prototype._onError = function(message) {
-    var onError = this._task.onError;
-    if (!onError) {
-        log("SESSION: MESSAGE: Missing onError callback");
-        return;
-    }
-
     delete message.id;
-    onError(message);
-};
 
-/**
- * Callback to handle success messages from the session server
- *
- * @param {module:nel~SuccessMessage} message
- * @private
- */
-Session.prototype._onSuccess = function(message) {
-    var onSuccess = this._task.onSuccess;
-    if (!onSuccess) {
-        log("SESSION: MESSAGE: Missing onSuccess callback");
+    var task = this._contextTable[contextId];
+    if (!task) {
+        log(
+            "SESSION: MESSAGE: Missing context, using last context, id =",
+            contextId
+        );
+    }
+
+    // Handle message.async and message.end
+    if (message.end || message.async) {
+        if (message.end) {
+            if (task) {
+                log("SESSION: MESSAGE: END: id =", contextId);
+
+                delete this._contextTable[contextId];
+
+                if (task.afterRun) {
+                    task.afterRun();
+                }
+            } else {
+                log("SESSION: MESSAGE: END: DROPPED: id =", contextId);
+            }
+        }
+
+        // If the task ending or entering async mode is the last task,
+        // then proceed to run the next task on the queue.
+        if (task &amp;&amp; task === this._currentTask) {
+            if (message.async) {
+                log("SESSION: MESSAGE: ASYNC: id =", contextId);
+            }
+
+            this._currentTask = null;
+
+            if (this._tasks.length > 0) {
+                this._runNow(this._tasks.shift());
+            }
+        } else {
+            if (message.async) {
+                log("SESSION: MESSAGE: ASYNC: DROPPED: id =", contextId);
+            }
+        }
+    
         return;
     }
 
-    delete message.id;
-    onSuccess(message);
+    // If context is missing, then default to use the last context
+    if (!task) {
+        task = this._lastTask;
+        if (!task) {
+            log("SESSION: MESSAGE: DROPPED: There is no last context");
+            return;
+        }
+    }
+
+    // Handle message.stdout
+    if (message.stdout) {
+        if (task.onStdout) {
+            task.onStdout(message.stdout);
+        } else {
+            log("SESSION: MESSAGE: Missing stderr callback");
+        }
+        return;
+    }
+
+    // Handle message.stderr
+    if (message.stderr) {
+        if (task.onStderr) {
+            task.onStderr(message.stderr);
+        } else {
+            log("SESSION: MESSAGE: Missing stderr callback");
+        }
+        return;
+    }
+
+    // Handle message.error and remaining properties
+    if (message.hasOwnProperty("error")) {
+        if (task.onError) {
+            task.onError(message);
+        } else {
+            log("SESSION: MESSAGE: Missing onError callback");
+        }
+    } else {
+        if (task.onSuccess) {
+            task.onSuccess(message);
+        } else {
+            log("SESSION: MESSAGE: Missing onSuccess callback");
+        }
+    }
 };
 
 /**
@@ -582,7 +625,7 @@ Session.prototype._run = function(task) {
 
     log("SESSION: TASK:", task);
 
-    if (this._task === null) {
+    if (this._currentTask === null) {
         this._runNow(task);
     } else {
         this._runLater(task);
@@ -596,20 +639,19 @@ Session.prototype._run = function(task) {
  * @private
  */
 Session.prototype._runNow = function(task) {
-    this._task = task;
-    if (this._task.beforeRun) {
-        this._task.beforeRun();
+    this._currentTask = task;
+
+    this._lastContextId++;
+    this._lastTask = this._currentTask;
+    this._contextTable[this._lastContextId] = this._lastTask;
+
+    if (this._lastTask.beforeRun) {
+        this._lastTask.beforeRun();
     }
 
-    var contextId = this._contextId++;
-    if (task.onStdout) {
-        this._contextStdout[contextId] = task.onStdout;
-    }
-    if (task.onStderr) {
-        this._contextStderr[contextId] = task.onStderr;
-    }
-
-    this._server.send([this._task.action, this._task.code, contextId]);
+    this._server.send(
+        [this._lastTask.action, this._lastTask.code, this._lastContextId]
+    );
 };
 
 /**
@@ -1188,7 +1230,7 @@ function getDocumentation(name) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Mar 03 2016 09:44:53 GMT+0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Mar 04 2016 18:25:43 GMT+0000 (GMT)
 </footer>
 
 <script> prettyPrint(); </script>

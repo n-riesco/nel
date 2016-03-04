@@ -624,7 +624,7 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line368">line 368</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line409">line 409</a>
     </li></ul></dd>
     
 
@@ -996,7 +996,7 @@ to a callback function and even capture its `stdout` and `stderr` streams.</div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line325">line 325</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line364">line 364</a>
     </li></ul></dd>
     
 
@@ -1090,8 +1090,7 @@ and <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li
             
 
             <td class="description last">Execution context id
-                                        (deleted before passing the message
-                                        onto the API user)</td>
+                            (deleted before the message reaches the API user)</td>
         </tr>
 
     
@@ -1148,7 +1147,7 @@ and <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
             
@@ -1179,7 +1178,7 @@ and <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type">string</span>
 
 
             
@@ -1198,6 +1197,99 @@ and <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li
             
 
             <td class="description last">Result in HTML format</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>"image/svg+xml"</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Result in SVG format</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>"image/png"</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Result as PNG in a base64 string</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>"image/jpeg"</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Result as JPEG in a base64 string</td>
         </tr>
 
     
@@ -1243,7 +1335,7 @@ and <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line354">line 354</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line393">line 393</a>
     </li></ul></dd>
     
 
@@ -1783,7 +1875,7 @@ and <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line392">line 392</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line433">line 433</a>
     </li></ul></dd>
     
 
@@ -2006,10 +2098,19 @@ and <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li
     <ul>
         <li>
             
-<span class="param-type"><a href="module-nel.html#~StdoutMessage">module:nel~StdoutMessage</a></span>
+<span class="param-type">module:nel~AsyncMessage</span>
 |
 
-<span class="param-type"><a href="module-nel.html#~StderrMessage">module:nel~StderrMessage</a></span>
+<span class="param-type">module:nel~EndMessage</span>
+|
+
+<span class="param-type">module:nel~LogMessage</span>
+|
+
+<span class="param-type">module:nel~StdoutMessage</span>
+|
+
+<span class="param-type">module:nel~StderrMessage</span>
 |
 
 <span class="param-type"><a href="module-nel.html#~ErrorMessage">module:nel~ErrorMessage</a></span>
@@ -3034,280 +3135,6 @@ and <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li
 
             
                 
-<h4 class="name" id="~StderrMessage">StderrMessage</h4>
-
-
-
-
-<div class="description">
-    Stderr message received from the session server
-</div>
-
-
-
-
-
-
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>id</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Execution context id</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>stderr</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Data written on the session stderr</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line316">line 316</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-            
-                
-<h4 class="name" id="~StdoutMessage">StdoutMessage</h4>
-
-
-
-
-<div class="description">
-    Stdout message received from the session server
-</div>
-
-
-
-
-
-
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>id</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Execution context id</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>stdout</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Data written on the session stdout</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line307">line 307</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-            
-                
 <h4 class="name" id="~SuccessMessage">SuccessMessage</h4>
 
 
@@ -3371,7 +3198,7 @@ and <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line341">line 341</a>
+        <a href="nel.js.html">nel.js</a>, <a href="nel.js.html#line380">line 380</a>
     </li></ul></dd>
     
 
@@ -3415,7 +3242,7 @@ and <a href="module-nel-Session.html#inspect">module:nel~Session#inspect</a></li
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Mar 03 2016 09:44:53 GMT+0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Mar 04 2016 18:25:43 GMT+0000 (GMT)
 </footer>
 
 <script> prettyPrint(); </script>
