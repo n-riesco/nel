@@ -287,10 +287,5 @@ requests, ...
 
 ## TODO
 
-- Implement convention to customise the output of class instances
-- Implement `$$text$$`
-- Add tests for `$$async$$` and `$$done()$$`
-- Add tests for `$$html$$`, `$$png$$`, `$$jpeg$$`, `$$mime$$`, `$$mimer$$`, ...
-- Session#complete and Session#inspect: make `cursorPos` argument default to
-  `code.length`
+- Add tests for customising output
 - Add `Node.js` documentation
