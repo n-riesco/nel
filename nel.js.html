@@ -325,8 +325,6 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * Message received from the session server
  *
  * @typedef Message {
- *     module:nel~AsyncMessage |
- *     module:nel~EndMessage |
  *     module:nel~LogMessage |
  *     module:nel~StdoutMessage |
  *     module:nel~StderrMessage |
@@ -341,28 +339,6 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * @typedef LogMessage
  *
  * @property {string}   log     Message for logging purposes
- *
- * @private
- */
-
-/**
- * Message to indicate an execution context initiated the async execution mode
- *
- * @typedef AsyncMessage
- *
- * @property {number}   id      Execution context id
- * @property {boolean}  async   Always set to true
- *
- * @private
- */
-
-/**
- * Message to indicate an execution context can be deleted
- *
- * @typedef EndMessage
- *
- * @property {number}   id      Execution context id
- * @property {boolean}  end     Always set to true
  *
  * @private
  */
@@ -399,6 +375,7 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * @property {number}   [id]             Execution context id
  *                                       (deleted before passing the message
  *                                       onto the API user)
+ * @property {boolean}  [end]            Flag to terminate the execution context
  * @property            error
  * @property {String}   error.ename      Error name
  * @property {String}   error.evalue     Error value
@@ -426,6 +403,7 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  *
  * @property {number}  [id]    Execution context id
  *                             (deleted before the message reaches the API user)
+ * @property {boolean} [end]   Flag to terminate the execution context
  * @property           mime
  * @property {string}  [mime."text/plain"]    Result in plain text
  * @property {string}  [mime."text/html"]     Result in HTML format
@@ -511,64 +489,30 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * @private
  */
 Session.prototype._onMessage = function(message) {
+    log("SESSION: MESSAGE:", message);
+
+    var contextId = message.id;
+    delete message.id;
+
+    var endMessage = message.end;
+    delete message.end;
+
     // Handle message.log
     if (message.log) {
         log(message.log);
         return;
     }
-    log("SESSION: MESSAGE:", message);
 
-    // Handle message.id
-    var contextId = message.id;
-    delete message.id;
-
+    // Get execution context
+    // (if context is missing, default to using the last context)
     var task = this._contextTable[contextId];
+
     if (!task) {
         log(
             "SESSION: MESSAGE: Missing context, using last context, id =",
             contextId
         );
-    }
 
-    // Handle message.async and message.end
-    if (message.end || message.async) {
-        if (message.end) {
-            if (task) {
-                log("SESSION: MESSAGE: END: id =", contextId);
-
-                delete this._contextTable[contextId];
-
-                if (task.afterRun) {
-                    task.afterRun();
-                }
-            } else {
-                log("SESSION: MESSAGE: END: DROPPED: id =", contextId);
-            }
-        }
-
-        // If the task ending or entering async mode is the last task,
-        // then proceed to run the next task on the queue.
-        if (task &amp;&amp; task === this._currentTask) {
-            if (message.async) {
-                log("SESSION: MESSAGE: ASYNC: id =", contextId);
-            }
-
-            this._currentTask = null;
-
-            if (this._tasks.length > 0) {
-                this._runNow(this._tasks.shift());
-            }
-        } else {
-            if (message.async) {
-                log("SESSION: MESSAGE: ASYNC: DROPPED: id =", contextId);
-            }
-        }
-    
-        return;
-    }
-
-    // If context is missing, then default to use the last context
-    if (!task) {
         task = this._lastTask;
         if (!task) {
             log("SESSION: MESSAGE: DROPPED: There is no last context");
@@ -596,7 +540,7 @@ Session.prototype._onMessage = function(message) {
         return;
     }
 
-    // Handle message.error and remaining properties
+    // Handle error and success messages
     if (message.hasOwnProperty("error")) {
         if (task.onError) {
             task.onError(message);
@@ -608,6 +552,31 @@ Session.prototype._onMessage = function(message) {
             task.onSuccess(message);
         } else {
             log("SESSION: MESSAGE: Missing onSuccess callback");
+        }
+    }
+
+    // Handle message.end
+    if (endMessage) {
+        if (task) {
+            log("SESSION: MESSAGE: END: id =", contextId);
+
+            delete this._contextTable[contextId];
+
+            if (task.afterRun) {
+                task.afterRun();
+            }
+        } else {
+            log("SESSION: MESSAGE: END: DROPPED: id =", contextId);
+        }
+    }
+
+    // If the task for this message is the last running task,
+    // proceed to run the next task on the queue.
+    if (task &amp;&amp; task === this._currentTask) {
+        this._currentTask = null;
+
+        if (this._tasks.length > 0) {
+            this._runNow(this._tasks.shift());
         }
     }
 };
@@ -1230,7 +1199,7 @@ function getDocumentation(name) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Mar 22 2016 10:00:34 GMT+0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Jun 18 2016 17:46:28 GMT+0100 (BST)
 </footer>
 
 <script> prettyPrint(); </script>
