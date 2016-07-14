@@ -1,6 +1,6 @@
 {
     "name": "nel",
-    "version": "0.4.0-beta.5",
+    "version": "0.4.0",
     "description": "Node.js Evaluation Loop (NEL): npm package to implement a Node.js REPL session",
     "keywords": [
         "javascript",
@@ -29,6 +29,5 @@
         "doc:publish": "node scripts/doc-publish.js doc https://github.com/n-riesco/nel",
         "lint": "jshint index.js lib",
         "test": "node test/index.js"
-
     }
 }
