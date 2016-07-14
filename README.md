@@ -18,7 +18,7 @@ change.
   as:
   - [plain text](http://n-riesco.github.io/ijavascript/doc/hello.ipynb.html)
   - [other MIME
-    formats](http://n-riesco.github.io/ijavascript/doc/graphics.ipynb.html)
+    formats](http://n-riesco.github.io/ijavascript/doc/custom.ipynb.html)
     (`HTML`, `SVG`, `PNG`...)
 - Run Javascript code
   [asynchronously](http://n-riesco.github.io/ijavascript/doc/async.ipynb.html).
