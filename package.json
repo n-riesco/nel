@@ -1,6 +1,6 @@
 {
     "name": "nel",
-    "version": "0.4.1",
+    "version": "0.5.0",
     "description": "Node.js Evaluation Loop (NEL): npm package to implement a Node.js REPL session",
     "keywords": [
         "javascript",
@@ -8,7 +8,9 @@
         "REPL",
         "session",
         "vm",
-        "ijavascript"
+        "ijavascript",
+        "jp-babel",
+        "jp-coffeescript"
     ],
     "author": {
         "author": "Nicolas Riesco",
