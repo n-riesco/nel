@@ -39,6 +39,9 @@
  * to a callback function and even capture its `stdout` and `stderr` streams.
  *
  */
+
+import EventEmitter from 'events';
+
 module.exports = {
     Session: Session,
 };
@@ -109,6 +112,33 @@ paths.server = path.join(paths.thisFolder, "nel_server.js");
  */
 
 
+class ProcessServer {
+  emitter = new EventEmitter();
+
+  constructor(command, args, config) {
+    this.server = spawn(command, args, config);
+    this.server.on("message", (data) => this.emitter.emit('message', data));
+  }
+
+  onMessage(callback) {
+    this.emitter.on("message", callback);
+  }
+
+  send(msg) {
+    this.server.send(msg);
+  }
+
+  kill(signal = "SIGTERM", killCB) {
+    this.server.removeAllListeners();
+    this.server.kill(signal);
+    this.server.on("exit", function (code, signal) {
+        if (killCB) {
+            killCB(code, signal);
+        }
+    }.bind(this));
+  }
+}
+
 /**
  * @class
  * @classdesc Implements a Node.js session
@@ -178,7 +208,7 @@ function Session(nelConfig) {
      * @member {module:child_process~ChildProcess}
      * @private
      */
-    this._server = spawn(Session._command, Session._args, this._config);
+    this._server = new ProcessServer(Session._command, Session._args, this._config);
 
     /**
      * True after calling {@link module:nel~Session.kill}, otherwise false
@@ -187,7 +217,7 @@ function Session(nelConfig) {
      */
     this._killed = false;
 
-    this._server.on("message", Session.prototype._onMessage.bind(this));
+    this._server.onMessage(Session.prototype._onMessage.bind(this));
 }
 
 /**
@@ -1001,13 +1031,7 @@ Session.prototype.inspect = function(code, cursorPos, callbacks) {
  */
 Session.prototype.kill = function(signal, killCB) {
     this._killed = true;
-    this._server.removeAllListeners();
-    this._server.kill(signal || "SIGTERM");
-    this._server.on("exit", (function(code, signal) {
-        if (killCB) {
-            killCB(code, signal);
-        }
-    }).bind(this));
+    this._server.kill(signal || "SIGTERM", killCB);
 };
 
 /**
