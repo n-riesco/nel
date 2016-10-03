@@ -232,7 +232,7 @@ Session._command = paths.node;
  * @member {String[]}
  * @private
  */
-Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
+Session._args = [paths.server]; // --eval workaround
 
 /**
  * Combination of a piece of code to be run within a session and all the
