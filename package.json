@@ -1,35 +1,41 @@
 {
-    "name": "nel",
-    "version": "0.5.0",
-    "description": "Node.js Evaluation Loop (NEL): npm package to implement a Node.js REPL session",
-    "keywords": [
-        "javascript",
-        "Node.js",
-        "REPL",
-        "session",
-        "vm",
-        "ijavascript",
-        "jp-babel",
-        "jp-coffeescript"
-    ],
-    "author": {
-        "author": "Nicolas Riesco",
-        "email": "enquiries@nicolasriesco.net",
-        "url": "http://www.nicolasriesco.net/"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/n-riesco/nel.git"
-    },
-    "license": "BSD-3-Clause",
-    "devDependencies": {
-        "jsdoc": "latest",
-        "jshint": "latest"
-    },
-    "scripts": {
-        "doc": "jsdoc -R README.md -d doc index.js lib",
-        "doc:publish": "node scripts/doc-publish.js doc https://github.com/n-riesco/nel",
-        "lint": "jshint index.js lib",
-        "test": "node test/index.js"
-    }
+  "name": "nel",
+  "version": "0.5.0",
+  "description": "Node.js Evaluation Loop (NEL): npm package to implement a Node.js REPL session",
+  "keywords": [
+    "javascript",
+    "Node.js",
+    "REPL",
+    "session",
+    "vm",
+    "ijavascript",
+    "jp-babel",
+    "jp-coffeescript"
+  ],
+  "author": {
+    "author": "Nicolas Riesco",
+    "email": "enquiries@nicolasriesco.net",
+    "url": "http://www.nicolasriesco.net/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/n-riesco/nel.git"
+  },
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "babel-cli": "^6.16.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "jsdoc": "latest",
+    "jshint": "latest",
+    "nodemon": "^1.10.2"
+  },
+  "scripts": {
+    "doc": "jsdoc -R README.md -d doc index.js lib",
+    "doc:publish": "node scripts/doc-publish.js doc https://github.com/n-riesco/nel",
+    "lint": "jshint index.js lib",
+    "test": "babel-node test/index.js",
+    "build": "babel src -d lib",
+    "watch": "babel -w src -d lib"
+  }
 }

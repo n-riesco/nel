@@ -35,7 +35,7 @@
  */
 
 var assert = require("assert");
-var nel = require("../index.js");
+var nel = require("../src/nel.js");
 var util = require("util");
 
 var session = new nel.Session();
