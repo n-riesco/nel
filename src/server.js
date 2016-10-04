@@ -36,7 +36,8 @@ import stream from "stream";
 import util from "util";
 import vm from "vm";
 import console from "console";
-
+import io from 'socket.io';
+import EventEmitter from 'events';
 
 let channel;
 const DEBUG = !!process.env.DEBUG;
@@ -305,11 +306,37 @@ Context.prototype.releaseGlobalContext = function releaseGlobalContext() {
 };
 
 class IpcChannel {
+  constructor() {
+    if(!process.send) {
+      throw new Error('Process must be spawned with ipc channel');
+    }
+  }
   onMessage(callback) {
     process.on("message", callback);
   }
+
   send(msg) {
     process.send(msg);
+  }
+}
+
+class SocketChannel {
+  constructor(port = 6001) {
+    this.emitter = new EventEmitter();
+    this.channel = new io(port);
+    this.channel.on('connection', (socket) => {
+      log('client connected');
+      socket.on("message", (msg) => this.emitter.emit('message', msg));
+    });
+    log(`listening on ${port}`);
+  }
+
+  onMessage(callback) {
+    this.emitter.on('message', callback);
+  }
+
+  send(msg) {
+    this.channel.send(msg)
   }
 }
 
@@ -319,8 +346,9 @@ export class Server {
   }
 
   start() {
-    channel = new IpcChannel();
-
+    channel = this.channel = (this.config.port || !process.send)
+      ? new SocketChannel(this.config.port)
+      : new IpcChannel()
     // Capture the initial context
     // (id left undefined to indicate this is the initial context)
     this.initialContext = new Context();
@@ -335,7 +363,6 @@ export class Server {
 
     channel.onMessage(this.onMessage.bind(this));
     process.on("uncaughtException", this.onUncaughtException.bind(this));
-
   }
 
   onUncaughtException(error) {

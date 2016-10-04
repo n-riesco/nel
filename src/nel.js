@@ -41,6 +41,7 @@
  */
 
 import EventEmitter from 'events';
+import io from 'socket.io-client';
 
 module.exports = {
     Session: Session,
@@ -138,6 +139,37 @@ class ProcessServer {
     }.bind(this));
   }
 }
+class SocketServer {
+  emitter = new EventEmitter();
+
+  constructor(server) {
+    log('connecting to ' + server);
+    this.socket = io.connect(server, {reconnect: true});
+    this.socket.on('connect_error', (error) => {
+      log('failed to connect to server: ', error);
+    });
+    this.socket.on('connect', () => {
+      log('connected');
+    });
+    this.socket.on('disconnect', () => {
+      log('disconnected');
+    });
+    this.socket.on('message', (msg) => this.emitter.emit('message', msg));
+  }
+
+  onMessage(callback) {
+    this.emitter.on("message", callback);
+  }
+
+  send(msg) {
+    this.socket.send(msg);
+  }
+
+  kill(signal = "SIGTERM", killCB) {
+    this.socket.close();
+    if(killCB) { killCB(); }
+  }
+}
 
 /**
  * @class
@@ -208,7 +240,12 @@ function Session(nelConfig) {
      * @member {module:child_process~ChildProcess}
      * @private
      */
-    this._server = new ProcessServer(Session._command, Session._args, this._config);
+     if(nelConfig.server) {
+       this._server = new SocketServer(nelConfig.server);
+     } else {
+       this._server = new ProcessServer(Session._command, Session._args, this._config);
+     }
+
 
     /**
      * True after calling {@link module:nel~Session.kill}, otherwise false
@@ -232,7 +269,7 @@ Session._command = paths.node;
  * @member {String[]}
  * @private
  */
-Session._args = [paths.server]; // --eval workaround
+Session._args = [paths.server];
 
 /**
  * Combination of a piece of code to be run within a session and all the
