@@ -383,23 +383,24 @@ export class Server {
       var context = new Context(id);
       context.captureGlobalContext();
 
-      try {
-          if (action === "getAllPropertyNames") {
-              this.onNameRequest(code, context);
-          } else if (action === "inspect") {
-              this.onInspectRequest(code, context);
-          } else if (action === "run") {
-              this.onRunRequest(code, context);
-          } else {
-              throw new Error("NEL: Unhandled action request: " + action);
-          }
-      } catch (error) {
-          context.sendError(error);
-      }
+      var cleanup = () => {
+        context.releaseGlobalContext();
+        this.initialContext.captureGlobalContext();
+        this.initialContext._done = false;
+      };
 
-      context.releaseGlobalContext();
-      this.initialContext.captureGlobalContext();
-      this.initialContext._done = false;
+      return new Promise((resolve, reject) => {
+        if (action === "getAllPropertyNames") {
+            this.onNameRequest(code, context).then(resolve, reject);
+        } else if (action === "inspect") {
+            this.onInspectRequest(code, context).then(resolve, reject);
+        } else if (action === "run") {
+            this.onRunRequest(code, context).then(resolve, reject);
+        } else {
+            this.context.sendError(new Error("NEL: Unhandled action request: " + action));
+            resolve();
+        }
+      }).then(cleanup, cleanup);
   }
 
   onNameRequest(code, context) {
@@ -409,6 +410,7 @@ export class Server {
       };
       log("RESULT:", message);
       context.done(message);
+      return Promise.resolve();
   }
 
   onInspectRequest(code, context) {
@@ -418,26 +420,31 @@ export class Server {
       };
       log("RESULT:", message);
       context.done(message);
+      return Promise.resolve();
   }
 
   onRunRequest(code, context) {
-      var result = this.run(code);
+    const result = new Promise((resolve) => resolve(this.run(code)));
 
-      // Drop result if the run request initiated the async mode
-      if (context._async) {
-          return;
-      }
+    // Drop result if the run request initiated the async mode
+    if (context._async) {
+        return Promise.resolve();
+    }
 
-      // Drop result if the run request has already invoked context.done()
-      if (context._done) {
-          return;
-      }
+    // Drop result if the run request has already invoked context.done()
+    if (context._done) {
+        return Promise.resolve();
+    }
 
-      context.sendResult(result);
+    return result.then((value) => {
+      context.sendResult(value);
+    }, (error) => {
+      context.sendError(error);
+    });
   }
 
   run(code) {
-      return vm.runInThisContext(code);
+    return vm.runInThisContext(code);
   }
 }
 
