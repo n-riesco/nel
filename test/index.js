@@ -38,16 +38,54 @@ var assert = require("assert");
 var nel = require("../index.js");
 var util = require("util");
 
+var timeout = 5000;
+var timeoutID;
+function startTimer() {
+    timeoutID = setTimeout(function() {
+        throw new Error("timeout");
+    }, timeout);
+}
+function stopTimer() {
+    console.log("All test passed!");
+    clearTimeout(timeoutID);
+}
+
+startTimer();
+
 var session = new nel.Session();
 
-testNext(session, [
-    testSessionStatus,
-    testSessionRestart,
-    testSessionRun,
-    testSessionInspect,
-    testSessionComplete,
-    testSessionKill,
-]);
+console.log("Waiting for NEL server");
+waitForSession();
+
+function waitForSession() {
+    if (session._status === "starting") {
+        setTimeout(waitForSession, 50);
+
+    } else if (session._status === "online") {
+        console.log("NEL server is online");
+        console.log("Testing first call to Session#execute");
+        session.execute("", {
+            afterRun: testAll,
+        });
+
+    } else if (session._status === "dead") {
+        throw new Error("NEL server died!");
+
+    } else {
+        throw new Error("Unknown NEL server status: " + session._status);
+    }
+}
+
+function testAll() {
+    testNext(session, [
+        testSessionRestart,
+        testSessionRun,
+        testSessionInspect,
+        testSessionComplete,
+        testSessionKill,
+        stopTimer,
+    ]);
+}
 
 /**
  * @callback Test
@@ -76,32 +114,22 @@ function testNext(session, tests) {
     }
 }
 
-function testSessionStatus(session, tests) {
-    session.execute("", {
-        beforeRun: function() {
-            assert.equal(
-                session._status,
-                "online",
-                "Unexpected session status: " + session._status
-            );
-            testNext(session, tests);
-        },
-    });
-}
-
 function testSessionRestart(session, tests) {
+    console.log("Testing Session#restart");
     session.restart("SIGTERM", function(code, signal) {
         testNext(session, tests);
     });
 }
 
 function testSessionKill(session, tests) {
+    console.log("Testing Session#kill");
     session.kill("SIGTERM", function(code, signal) {
         testNext(session, tests);
     });
 }
 
 function testSessionRun(session, tests) {
+    console.log("Testing Session#execute");
     var testCases = [{
         code: "var msg = 'Hello, World!';" +
             "console.log(msg);" +
@@ -239,6 +267,7 @@ function makeSessionRunTestCase(code, expectedResult, stdout, stderr) {
 }
 
 function testSessionInspect(session, tests) {
+    console.log("Testing Session#inspect");
     var testCases = [{
         code: "var msg = 'Hello, World!';",
         cursorPos: 7,
@@ -341,6 +370,7 @@ function makeSessionInspectTestCase(code, cursorPos, expectedResult) {
 }
 
 function testSessionComplete(session, tests) {
+    console.log("Testing Session#complete");
     var testCases = [{
         code: "set",
         cursorPos: 2,
