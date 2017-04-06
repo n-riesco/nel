@@ -41,6 +41,7 @@ var util = require("util");
 var session = new nel.Session();
 
 testNext(session, [
+    testSessionStatus,
     testSessionRestart,
     testSessionRun,
     testSessionInspect,
@@ -73,6 +74,19 @@ function testNext(session, tests) {
     if (test) {
         test(session, tests);
     }
+}
+
+function testSessionStatus(session, tests) {
+    session.execute("", {
+        beforeRun: function() {
+            assert.equal(
+                session._status,
+                "online",
+                "Unexpected session status: " + session._status
+            );
+            testNext(session, tests);
+        },
+    });
 }
 
 function testSessionRestart(session, tests) {
