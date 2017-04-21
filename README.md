@@ -291,7 +291,6 @@ requests, ...
 
 ## TODO
 
-- Use Mocha
 - Add tests for customising output
 - Add tests for async output
 - Add tests for transpile option

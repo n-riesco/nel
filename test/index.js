@@ -36,396 +36,316 @@
 
 var assert = require("assert");
 var nel = require("../index.js");
-var util = require("util");
 
-var timeout = 5000;
-var timeoutID;
-function startTimer() {
-    timeoutID = setTimeout(function() {
-        throw new Error("timeout");
-    }, timeout);
+
+function waitForSession(session, done) {
+    _waitForSession();
+
+    function _waitForSession() {
+        if (session._status === "starting") {
+            setTimeout(_waitForSession, 50);
+
+        } else if (session._status === "online") {
+            done();
+
+        } else if (session._status === "dead") {
+            throw new Error("NEL server died!");
+
+        } else {
+            throw new Error("Unknown NEL status: " + session._status);
+        }
+    }
 }
-function stopTimer() {
-    console.log("All test passed!");
-    clearTimeout(timeoutID);
-}
 
-startTimer();
 
-var session = new nel.Session();
+var customMatchers = {
+    toDeepEqual: function(util, customEqualityTesters) {
+        return {
+            compare: function(actual, expected) {
+                var result = {};
 
-console.log("Waiting for NEL server");
-waitForSession();
+                try {
+                    assert.deepEqual(actual, expected);
+                    result.pass = true;
+                    result.message = "Expected " + actual + " to deep equal " + expected;
+                } catch (err) {
+                    result.pass = false;
+                    result.message = "Expected " + actual + " not to deep equal " + expected;
+                }
 
-function waitForSession() {
-    if (session._status === "starting") {
-        setTimeout(waitForSession, 50);
+                return result;
+            }
+        };
+    },
+};
 
-    } else if (session._status === "online") {
-        console.log("NEL server is online");
-        console.log("Testing first call to Session#execute");
-        session.execute("", {
-            afterRun: testAll,
+describe("NEL:", function() {
+    var session;
+
+    beforeEach(function(done) {
+        jasmine.addMatchers(customMatchers);
+
+        if (!session || session._status === "dead") {
+            session = new nel.Session();
+        }
+
+        waitForSession(session, done);
+    });
+
+    it("Session#restart can restart a session", function(done) {
+        var signal = "SIGTERM";
+
+        session.restart(signal, function(code, signal) {
+            expect(code).toBe(null, "Unexpected restart code");
+            expect(signal).toBe(signal, "Unexpected restart signal");
+
+            done();
         });
-
-    } else if (session._status === "dead") {
-        throw new Error("NEL server died!");
-
-    } else {
-        throw new Error("Unknown NEL server status: " + session._status);
-    }
-}
-
-function testAll() {
-    testNext(session, [
-        testSessionRestart,
-        testSessionRun,
-        testSessionInspect,
-        testSessionComplete,
-        testSessionKill,
-        stopTimer,
-    ]);
-}
-
-/**
- * @callback Test
- * @param {module:nel~Session} session
- * @param {(Test|Test[])}      [tests]
- * @description Run a test over session and call the next test in tests
- */
-
-/**
- * @type Test
- * @description This function is called by each test to ensure all tests are run
- */
-function testNext(session, tests) {
-    if (!tests) {
-        return;
-    }
-
-    if (!Array.isArray(tests)) {
-        tests(session);
-        return;
-    }
-
-    var test = tests.shift();
-    if (test) {
-        test(session, tests);
-    }
-}
-
-function testSessionRestart(session, tests) {
-    console.log("Testing Session#restart");
-    session.restart("SIGTERM", function(code, signal) {
-        testNext(session, tests);
-    });
-}
-
-function testSessionKill(session, tests) {
-    console.log("Testing Session#kill");
-    session.kill("SIGTERM", function(code, signal) {
-        testNext(session, tests);
-    });
-}
-
-function testSessionRun(session, tests) {
-    console.log("Testing Session#execute");
-    var testCases = [{
-        code: "var msg = 'Hello, World!';" +
-            "console.log(msg);" +
-            "console.error(msg);" +
-            "throw msg;",
-        result: {
-            error: {
-                ename: "string",
-                evalue: "'Hello, World!'",
-                traceback: "",
-            }
-        },
-        stdout: "Hello, World!\n",
-        stderr: "Hello, World!\n"
-    }, {
-        code: "msg;",
-        result: {
-            mime: {
-                "text/plain": "'Hello, World!'",
-            }
-        },
-    }, ].map(function(testCase) {
-        return makeSessionRunTestCase(
-            testCase.code,
-            testCase.result,
-            testCase.stdout,
-            testCase.stderr
-        );
     });
 
-    testNext(session, testCases.concat(tests));
-}
+    it("Session#kill can kill a session", function(done) {
+        var signal = "SIGTERM";
 
-function makeSessionRunTestCase(code, expectedResult, stdout, stderr) {
-    return function(session, tests) {
-        var hasRun = [];
-        var executionResult;
-        var stdoutResult = "";
-        var stderrResult = "";
+        session.kill(signal, function(code, signal) {
+            expect(code).toBe(null, "Unexpected kill code");
+            expect(signal).toBe(signal, "Unexpected kill signal");
 
-        session.execute(code, {
-            onSuccess: onSuccess,
-            onError: onError,
-            beforeRun: beforeRequest,
-            afterRun: afterRequest,
-            onStdout: onStdout,
-            onStderr: onStderr,
+            done();
         });
+    });
 
-        function beforeRequest() {
-            hasRun.push("beforeRequest");
-        }
-
-        function afterRequest() {
-            hasRun.push("afterRequest");
-            checkResult();
-        }
-
-        function onSuccess(result) {
-            hasRun.push("onSuccess");
-            executionResult = result;
-        }
-
-        function onError(error) {
-            hasRun.push("onError");
-            executionResult = error;
-        }
-
-        function onStdout(data) {
-            stdoutResult += data;
-        }
-
-        function onStderr(data) {
-            stderrResult += data;
-        }
-
-        function checkResult() {
-            if (expectedResult.error) {
-                assert.deepEqual(
-                    hasRun, ["beforeRequest", "onError", "afterRequest"],
-                    makeErrorMessage("Unexpected callbacks were run", hasRun)
-                );
-            } else {
-                assert.deepEqual(
-                    hasRun, ["beforeRequest", "onSuccess", "afterRequest"],
-                    makeErrorMessage("Unexpected callbacks were run", hasRun)
-                );
-            }
-
-            assert.deepEqual(
-                executionResult, expectedResult,
-                makeErrorMessage(
-                    "Unexpected result",
-                    util.inspect(executionResult),
-                    "Expected",
-                    util.inspect(expectedResult)
-                )
+    describe("Session#execute", function() {
+        var testCases = [{
+            code: "var msg = 'Hello, World!';" +
+                "console.log(msg);" +
+                "console.error(msg);" +
+                "throw msg;",
+            result: {
+                error: {
+                    ename: "string",
+                    evalue: "'Hello, World!'",
+                    traceback: "",
+                }
+            },
+            stdout: "Hello, World!\n",
+            stderr: "Hello, World!\n"
+        }, {
+            code: "msg;",
+            result: {
+                mime: {
+                    "text/plain": "'Hello, World!'",
+                }
+            },
+        }].forEach(function(testCase) {
+            testSessionExecutionCase(
+                testCase.code,
+                testCase.result,
+                testCase.stdout,
+                testCase.stderr
             );
-
-            if (stdout) {
-                assert.equal(
-                    stdoutResult, stdout,
-                    makeErrorMessage(
-                        "Unexpected stdout",
-                        stdoutResult,
-                        "Expected",
-                        stdout
-                    )
-                );
-            }
-
-            if (stderr) {
-                assert.equal(
-                    stderrResult, stderr,
-                    makeErrorMessage(
-                        "Unexpected stderr",
-                        stderrResult,
-                        "Expected",
-                        stderr
-                    )
-                );
-            }
-
-            testNext(session, tests);
-        }
-
-        function makeErrorMessage() {
-            var messages = ["testSessionRun"];
-            for (var i = 0; i < arguments.length; i++) {
-                messages.push(arguments[i]);
-            }
-            return messages.join(": ");
-        }
-    };
-}
-
-function testSessionInspect(session, tests) {
-    console.log("Testing Session#inspect");
-    var testCases = [{
-        code: "var msg = 'Hello, World!';",
-        cursorPos: 7,
-        result: {
-            inspection: {
-                string: 'Hello, World!',
-                type: 'String',
-                constructorList: ['String', 'Object'],
-                length: 13,
-                code: "var msg = 'Hello, World!';",
-                cursorPos: 7,
-                matchedText: 'msg'
-            },
-        },
-    }, {
-        code: "var a = [1, 2, 3];",
-        cursorPos: 5,
-        result: {
-            inspection: {
-                string: '[ 1, 2, 3 ]',
-                type: 'Array',
-                constructorList: ['Array', 'Object'],
-                length: 3,
-                code: 'var a = [1, 2, 3];',
-                cursorPos: 5,
-                matchedText: 'a'
-            },
-        },
-    }, {
-        code: "parseInt",
-        cursorPos: 8,
-        result: {
-            inspection: {
-                string: 'function parseInt() { [native code] }',
-                type: 'Function',
-                constructorList: ['Function', 'Object'],
-                length: 2,
-                code: 'parseInt',
-                cursorPos: 8,
-                matchedText: 'parseInt',
-            },
-            doc: {
-                description: 'The parseInt() function parses a string argument and returns an integer of the specified radix (the base in mathematical numeral systems).',
-                url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt',
-                usage: 'parseInt(string, radix);'
-            },
-        },
-    }, ].map(function(testCase) {
-        return makeSessionInspectTestCase(
-            testCase.code,
-            testCase.cursorPos,
-            testCase.result
-        );
+        });
     });
 
-    testNext(session, testCases.concat(tests));
-}
+    function testSessionExecutionCase(code, expectedResult, stdout, stderr) {
+        it("can execute '" + code + "'", function(done) {
+            var hasRun = [];
+            var executionResult;
+            var stdoutResult = "";
+            var stderrResult = "";
 
-function makeSessionInspectTestCase(code, cursorPos, expectedResult) {
-    return function(session, tests) {
-        // First run the code, then inspect the expression at cursorPos.
-        session.execute(code, {
-            onSuccess: onExecutionSuccess,
-            onError: function onError(error) {
-                assert(false, makeErrorMessage("Execution error:", error));
-            },
+            session.execute(code, {
+                onSuccess: onSuccess,
+                onError: onError,
+                beforeRun: beforeRequest,
+                afterRun: afterRequest,
+                onStdout: onStdout,
+                onStderr: onStderr,
+            });
+
+            function beforeRequest() {
+                hasRun.push("beforeRequest");
+            }
+
+            function afterRequest() {
+                hasRun.push("afterRequest");
+                checkResult();
+            }
+
+            function onSuccess(result) {
+                hasRun.push("onSuccess");
+                executionResult = result;
+            }
+
+            function onError(error) {
+                hasRun.push("onError");
+                executionResult = error;
+            }
+
+            function onStdout(data) {
+                stdoutResult += data;
+            }
+
+            function onStderr(data) {
+                stderrResult += data;
+            }
+
+            function checkResult() {
+                if (expectedResult.error) {
+                    expect(hasRun).toDeepEqual(
+                        ["beforeRequest", "onError", "afterRequest"],
+                        "Unexpected callbacks were run"
+                    );
+                } else {
+                    expect(hasRun).toDeepEqual(
+                        ["beforeRequest", "onSuccess", "afterRequest"],
+                        "Unexpected callbacks were run"
+                    );
+                }
+
+                expect(executionResult).toDeepEqual(expectedResult,
+                    "Unexpected execution result"
+                );
+
+                if (stdout) {
+                    expect(stdoutResult).toEqual(stdout, "Unexpected stdout");
+                }
+
+                if (stderr) {
+                    expect(stderrResult).toEqual(stderr, "Unexpected stderr");
+                }
+
+                done();
+            }
         });
+    }
 
-        function onExecutionSuccess(executionResult) {
-            session.inspect(code, cursorPos, {
-                onSuccess: check,
+    describe("Session#inspect", function() {
+        var testCases = [{
+            code: "var msg = 'Hello, World!';",
+            cursorPos: 7,
+            result: {
+                inspection: {
+                    string: 'Hello, World!',
+                    type: 'String',
+                    constructorList: ['String', 'Object'],
+                    length: 13,
+                    code: "var msg = 'Hello, World!';",
+                    cursorPos: 7,
+                    matchedText: 'msg'
+                },
+            },
+        }, {
+            code: "var a = [1, 2, 3];",
+            cursorPos: 5,
+            result: {
+                inspection: {
+                    string: '[ 1, 2, 3 ]',
+                    type: 'Array',
+                    constructorList: ['Array', 'Object'],
+                    length: 3,
+                    code: 'var a = [1, 2, 3];',
+                    cursorPos: 5,
+                    matchedText: 'a'
+                },
+            },
+        }, {
+            code: "parseInt",
+            cursorPos: 8,
+            result: {
+                inspection: {
+                    string: 'function parseInt() { [native code] }',
+                    type: 'Function',
+                    constructorList: ['Function', 'Object'],
+                    length: 2,
+                    code: 'parseInt',
+                    cursorPos: 8,
+                    matchedText: 'parseInt',
+                },
+                doc: {
+                    description: 'The parseInt() function parses a string argument and returns an integer of the specified radix (the base in mathematical numeral systems).',
+                    url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt',
+                    usage: 'parseInt(string, radix);'
+                },
+            },
+        }].forEach(function(testCase) {
+            testSessionInspectCase(
+                testCase.code,
+                testCase.cursorPos,
+                testCase.result
+            );
+        });
+    });
+
+    function testSessionInspectCase(code, cursorPos, expectedResult) {
+        it("can inspect '" + code + "'", function(done) {
+            // First run the code, then inspect the expression at cursorPos.
+            session.execute(code, {
+                onSuccess: onExecutionSuccess,
                 onError: function onError(error) {
-                    assert(false, makeErrorMessage("Inspection error:", error));
+                    throw error;
                 },
             });
-        }
 
-        function check(inspectionResult) {
-            assert.deepEqual(
-                inspectionResult, expectedResult,
-                makeErrorMessage(
-                    "Unexpected result",
-                    util.inspect(inspectionResult),
-                    "Expected",
-                    util.inspect(expectedResult)
-                )
-            );
-
-            testNext(session, tests);
-        }
-
-        function makeErrorMessage() {
-            var messages = ["testSessionInspect"];
-            for (var i = 0; i < arguments.length; i++) {
-                messages.push(arguments[i]);
+            function onExecutionSuccess(executionResult) {
+                session.inspect(code, cursorPos, {
+                    onSuccess: check,
+                    onError: function onError(error) {
+                        throw error;
+                    },
+                });
             }
-            return messages.join(": ");
-        }
-    };
-}
 
-function testSessionComplete(session, tests) {
-    console.log("Testing Session#complete");
-    var testCases = [{
-        code: "set",
-        cursorPos: 2,
-        result: {
-            completion: {
-                list: ['setImmediate', 'setInterval', 'setTimeout'],
-                code: 'set',
-                cursorPos: 2,
-                matchedText: 'se',
-                cursorStart: 0,
-                cursorEnd: 3,
+            function check(inspectionResult) {
+                expect(inspectionResult).toDeepEqual(expectedResult,
+                    "Unexpected inspection result"
+                );
+
+                done();
+            }
+        });
+    }
+
+    describe("Session#complete", function() {
+        var testCases = [{
+            code: "set",
+            cursorPos: 2,
+            result: {
+                completion: {
+                    list: ['setImmediate', 'setInterval', 'setTimeout'],
+                    code: 'set',
+                    cursorPos: 2,
+                    matchedText: 'se',
+                    cursorStart: 0,
+                    cursorEnd: 3,
+                },
             },
-        },
-    }, ].map(function(testCase) {
-        return makeSessionCompleteTestCase(
-            testCase.code,
-            testCase.cursorPos,
-            testCase.result
-        );
+        }].forEach(function(testCase) {
+            testSessionCompleteCase(
+                testCase.code,
+                testCase.cursorPos,
+                testCase.result
+            );
+        });
     });
 
-    testNext(session, testCases.concat(tests));
-}
+    function testSessionCompleteCase(code, cursorPos, expectedResult) {
+        it("can complete '" + code + "'", function(done) {
+            session.complete(code, cursorPos, {
+                onSuccess: check,
+                onError: onError,
+            });
 
-function makeSessionCompleteTestCase(code, cursorPos, expectedResult) {
-    return function(session, tests) {
-        session.complete(code, cursorPos, {
-            onSuccess: check,
-            onError: onError,
-        });
-
-        function onError(error) {
-            assert(false, makeErrorMessage("Completion error:", error));
-        }
-
-        function check(completionResult) {
-            assert.deepEqual(
-                completionResult, expectedResult,
-                makeErrorMessage(
-                    "Unexpected result",
-                    util.inspect(completionResult),
-                    "Expected",
-                    util.inspect(expectedResult)
-                )
-            );
-
-            testNext(session, tests);
-        }
-
-        function makeErrorMessage() {
-            var messages = ["testSessionComplete"];
-            for (var i = 0; i < arguments.length; i++) {
-                messages.push(arguments[i]);
+            function onError(error) {
+                throw error;
             }
-            return messages.join(": ");
-        }
-    };
-}
+
+            function check(completionResult) {
+                expect(completionResult).toDeepEqual(expectedResult,
+                    "Unexpected completion result"
+                );
+
+                done();
+            }
+        });
+    }
+});

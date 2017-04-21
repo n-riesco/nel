@@ -23,13 +23,16 @@
     },
     "license": "BSD-3-Clause",
     "devDependencies": {
-        "jsdoc": "latest",
-        "jshint": "latest"
+        "debug": "2",
+        "jasmine": "2",
+        "jsdoc": "3",
+        "jshint": "2"
     },
     "scripts": {
         "doc": "jsdoc -R README.md -d doc index.js lib",
         "doc:publish": "node scripts/doc-publish.js doc https://github.com/n-riesco/nel",
         "lint": "jshint index.js lib",
-        "test": "node test/index.js"
+        "test:jasmine": "jasmine test",
+        "test": "npm run lint && npm run test:jasmine"
     }
 }
