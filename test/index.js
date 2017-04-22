@@ -35,7 +35,9 @@
  */
 
 var assert = require("assert");
+var fs = require("fs");
 var nel = require("../index.js");
+var path = require("path");
 
 
 function waitForSession(session, done) {
@@ -67,10 +69,13 @@ var customMatchers = {
                 try {
                     assert.deepEqual(actual, expected);
                     result.pass = true;
-                    result.message = "Expected " + actual + " to deep equal " + expected;
+                    result.message =
+                        "Expected " + actual + " to deep equal " + expected;
+
                 } catch (err) {
                     result.pass = false;
-                    result.message = "Expected " + actual + " not to deep equal " + expected;
+                    result.message =
+                        "Expected " + actual + " not to deep equal " + expected;
                 }
 
                 return result;
@@ -115,38 +120,19 @@ describe("NEL:", function() {
     });
 
     describe("Session#execute", function() {
-        var testCases = [{
-            code: "var msg = 'Hello, World!';" +
-                "console.log(msg);" +
-                "console.error(msg);" +
-                "throw msg;",
-            result: {
-                error: {
-                    ename: "string",
-                    evalue: "'Hello, World!'",
-                    traceback: "",
-                }
-            },
-            stdout: "Hello, World!\n",
-            stderr: "Hello, World!\n"
-        }, {
-            code: "msg;",
-            result: {
-                mime: {
-                    "text/plain": "'Hello, World!'",
-                }
-            },
-        }].forEach(function(testCase) {
-            testSessionExecutionCase(
-                testCase.code,
-                testCase.result,
-                testCase.stdout,
-                testCase.stderr
-            );
-        });
+        var testCases = JSON.parse(
+            fs.readFileSync(path.join(__dirname, "execute.json"))
+        );
+
+        testCases.forEach(testSessionExecutionCase);
     });
 
-    function testSessionExecutionCase(code, expectedResult, stdout, stderr) {
+    function testSessionExecutionCase(testCase) {
+        var code = testCase.code;
+        var expectedResult = testCase.result;
+        var stdout = testCase.stdout;
+        var stderr = testCase.stderr;
+
         it("can execute '" + code + "'", function(done) {
             var hasRun = [];
             var executionResult;
@@ -220,63 +206,18 @@ describe("NEL:", function() {
     }
 
     describe("Session#inspect", function() {
-        var testCases = [{
-            code: "var msg = 'Hello, World!';",
-            cursorPos: 7,
-            result: {
-                inspection: {
-                    string: 'Hello, World!',
-                    type: 'String',
-                    constructorList: ['String', 'Object'],
-                    length: 13,
-                    code: "var msg = 'Hello, World!';",
-                    cursorPos: 7,
-                    matchedText: 'msg'
-                },
-            },
-        }, {
-            code: "var a = [1, 2, 3];",
-            cursorPos: 5,
-            result: {
-                inspection: {
-                    string: '[ 1, 2, 3 ]',
-                    type: 'Array',
-                    constructorList: ['Array', 'Object'],
-                    length: 3,
-                    code: 'var a = [1, 2, 3];',
-                    cursorPos: 5,
-                    matchedText: 'a'
-                },
-            },
-        }, {
-            code: "parseInt",
-            cursorPos: 8,
-            result: {
-                inspection: {
-                    string: 'function parseInt() { [native code] }',
-                    type: 'Function',
-                    constructorList: ['Function', 'Object'],
-                    length: 2,
-                    code: 'parseInt',
-                    cursorPos: 8,
-                    matchedText: 'parseInt',
-                },
-                doc: {
-                    description: 'The parseInt() function parses a string argument and returns an integer of the specified radix (the base in mathematical numeral systems).',
-                    url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt',
-                    usage: 'parseInt(string, radix);'
-                },
-            },
-        }].forEach(function(testCase) {
-            testSessionInspectCase(
-                testCase.code,
-                testCase.cursorPos,
-                testCase.result
-            );
-        });
+        var testCases = JSON.parse(
+            fs.readFileSync(path.join(__dirname, "inspect.json"))
+        );
+
+        testCases.forEach(testSessionInspectCase);
     });
 
-    function testSessionInspectCase(code, cursorPos, expectedResult) {
+    function testSessionInspectCase(testCase) {
+        var code = testCase.code;
+        var cursorPos = testCase.cursorPos;
+        var expectedResult = testCase.result;
+
         it("can inspect '" + code + "'", function(done) {
             // First run the code, then inspect the expression at cursorPos.
             session.execute(code, {
@@ -306,29 +247,18 @@ describe("NEL:", function() {
     }
 
     describe("Session#complete", function() {
-        var testCases = [{
-            code: "set",
-            cursorPos: 2,
-            result: {
-                completion: {
-                    list: ['setImmediate', 'setInterval', 'setTimeout'],
-                    code: 'set',
-                    cursorPos: 2,
-                    matchedText: 'se',
-                    cursorStart: 0,
-                    cursorEnd: 3,
-                },
-            },
-        }].forEach(function(testCase) {
-            testSessionCompleteCase(
-                testCase.code,
-                testCase.cursorPos,
-                testCase.result
-            );
-        });
+        var testCases = JSON.parse(
+            fs.readFileSync(path.join(__dirname, "complete.json"))
+        );
+
+        testCases.forEach(testSessionCompleteCase);
     });
 
-    function testSessionCompleteCase(code, cursorPos, expectedResult) {
+    function testSessionCompleteCase(testCase) {
+        var code = testCase.code;
+        var cursorPos = testCase.cursorPos;
+        var expectedResult = testCase.result;
+
         it("can complete '" + code + "'", function(done) {
             session.complete(code, cursorPos, {
                 onSuccess: check,

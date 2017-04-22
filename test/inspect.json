@@ -1,0 +1,48 @@
+[{
+    "code": "var msg = 'Hello, World!';",
+    "cursorPos": 7,
+    "result": {
+        "inspection": {
+            "string": "Hello, World!",
+            "type": "String",
+            "constructorList": ["String", "Object"],
+            "length": 13,
+            "code": "var msg = 'Hello, World!';",
+            "cursorPos": 7,
+            "matchedText": "msg"
+        }
+    }
+}, {
+    "code": "var a = [1, 2, 3];",
+    "cursorPos": 5,
+    "result": {
+        "inspection": {
+            "string": "[ 1, 2, 3 ]",
+            "type": "Array",
+            "constructorList": ["Array", "Object"],
+            "length": 3,
+            "code": "var a = [1, 2, 3];",
+            "cursorPos": 5,
+            "matchedText": "a"
+        }
+    }
+}, {
+    "code": "parseInt",
+    "cursorPos": 8,
+    "result": {
+        "inspection": {
+            "string": "function parseInt() { [native code] }",
+            "type": "Function",
+            "constructorList": ["Function", "Object"],
+            "length": 2,
+            "code": "parseInt",
+            "cursorPos": 8,
+            "matchedText": "parseInt"
+        },
+        "doc": {
+            "description": "The parseInt() function parses a string argument and returns an integer of the specified radix (the base in mathematical numeral systems).",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt",
+            "usage": "parseInt(string, radix);"
+        }
+    }
+}]

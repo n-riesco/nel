@@ -1,0 +1,19 @@
+[{
+    "code": "var msg = 'Hello, World!'; console.log(msg); console.error(msg); throw msg;",
+    "result": {
+        "error": {
+            "ename": "string",
+            "evalue": "'Hello, World!'",
+            "traceback": ""
+        }
+    },
+    "stdout": "Hello, World!\n",
+    "stderr": "Hello, World!\n"
+}, {
+    "code": "msg;",
+    "result": {
+        "mime": {
+            "text/plain": "'Hello, World!'"
+        }
+    }
+}]

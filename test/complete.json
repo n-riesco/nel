@@ -1,0 +1,14 @@
+[{
+    "code": "set",
+    "cursorPos": 2,
+    "result": {
+        "completion": {
+            "list": ["setImmediate", "setInterval", "setTimeout"],
+            "code": "set",
+            "cursorPos": 2,
+            "matchedText": "se",
+            "cursorStart": 0,
+            "cursorEnd": 3
+        }
+    }
+}]
