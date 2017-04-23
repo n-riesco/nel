@@ -39,6 +39,10 @@ var fs = require("fs");
 var nel = require("../index.js");
 var path = require("path");
 
+var depth = 2;
+var inspect = require("util").inspect;
+var log = process.env.DEBUG ? console.log : function() {};
+
 
 function waitForSession(session, done) {
     _waitForSession();
@@ -60,23 +64,68 @@ function waitForSession(session, done) {
 }
 
 
+function deepEqual(actual, expected, memoise) {
+    if (typeof expected === "undefined" || expected === null) {
+        return actual === expected;
+    }
+
+    if (typeof actual === "undefined" || actual === null) {
+        return false;
+    }
+
+    if (typeof expected !== 'object') {
+        return actual === expected;
+    }
+
+    // memoise calls to avoid circular comparisons
+    memoise = (Array.isArray(memoise)) ? memoise : [];
+
+    if (isMemoised(actual, expected)) {
+        return true; // skip memoised cases by returning `true`
+    }
+
+    memoise.push([actual, expected]);
+
+    function isMemoised(actual, expected) {
+        for (var i = 0; i < memoise.length; i++) {
+            var memoised = memoise[i];
+            var memoisedActual = memoised[0];
+            var memoisedExpected = memoised[1];
+            if (memoisedActual === actual && memoisedExpected === expected) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // only compare property names present in `expected`
+    var expectedPropertyNames = Object.getOwnPropertyNames(expected);
+    if (expectedPropertyNames.length === 0) {
+        return true;
+    }
+
+    return expectedPropertyNames.map(function(name) {
+        var isEqual = deepEqual(actual[name], expected[name], memoise);
+        return isEqual;
+    }).filter(function(isEqual) {
+        return !isEqual;
+    }).length === 0;
+}
+
 var customMatchers = {
     toDeepEqual: function(util, customEqualityTesters) {
         return {
             compare: function(actual, expected) {
-                var result = {};
+                var pass = deepEqual(actual, expected);
 
-                try {
-                    assert.deepEqual(actual, expected);
-                    result.pass = true;
-                    result.message =
-                        "Expected " + actual + " to deep equal " + expected;
-
-                } catch (err) {
-                    result.pass = false;
-                    result.message =
-                        "Expected " + actual + " not to deep equal " + expected;
-                }
+                var result = {
+                    pass: pass,
+                    message:
+                        "Expected " +
+                        inspect(actual, { depth: depth }) +
+                        ((pass) ? " not " : " ") + "to deep equal " +
+                        inspect(expected, { depth: depth }),
+                };
 
                 return result;
             }
@@ -128,12 +177,16 @@ describe("NEL:", function() {
     });
 
     function testSessionExecutionCase(testCase) {
+        log("Added execution test case:", testCase.code);
+
         var code = testCase.code;
         var expectedResult = testCase.result;
         var stdout = testCase.stdout;
         var stderr = testCase.stderr;
 
         it("can execute '" + code + "'", function(done) {
+            log("Test execution case:", testCase.code);
+
             var hasRun = [];
             var executionResult;
             var stdoutResult = "";
@@ -219,20 +272,18 @@ describe("NEL:", function() {
         var expectedResult = testCase.result;
 
         it("can inspect '" + code + "'", function(done) {
+            log("Test inspection case:", testCase.code);
+
             // First run the code, then inspect the expression at cursorPos.
             session.execute(code, {
-                onSuccess: onExecutionSuccess,
-                onError: function onError(error) {
-                    throw error;
-                },
+                onSuccess: onExecution,
+                onError: onExecution,
             });
 
-            function onExecutionSuccess(executionResult) {
+            function onExecution(executionResult) {
                 session.inspect(code, cursorPos, {
                     onSuccess: check,
-                    onError: function onError(error) {
-                        throw error;
-                    },
+                    onError: check,
                 });
             }
 
@@ -260,13 +311,19 @@ describe("NEL:", function() {
         var expectedResult = testCase.result;
 
         it("can complete '" + code + "'", function(done) {
-            session.complete(code, cursorPos, {
-                onSuccess: check,
-                onError: onError,
+            log("Test completion case:", testCase.code);
+
+            // First run the code, then inspect the expression at cursorPos.
+            session.execute(code, {
+                onSuccess: onExecution,
+                onError: onExecution,
             });
 
-            function onError(error) {
-                throw error;
+            function onExecution(executionResult) {
+                session.complete(code, cursorPos, {
+                    onSuccess: check,
+                    onError: check,
+                });
             }
 
             function check(completionResult) {

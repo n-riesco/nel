@@ -11,4 +11,74 @@
             "cursorEnd": 3
         }
     }
+},
+{
+    "code": "br",
+    "cursorPos": 2,
+    "result": {
+        "completion": {
+            "list": ["break"],
+            "code": "br",
+            "cursorPos": 2,
+            "matchedText": "br",
+            "cursorStart": 0,
+            "cursorEnd": 2
+        }
+    }
+},
+{
+    "code": "process.en",
+    "cursorPos": 10,
+    "result": {
+        "completion": {
+            "list": ["process.env"],
+            "code": "process.en",
+            "cursorPos": 10,
+            "matchedText": "process.en",
+            "cursorStart": 0,
+            "cursorEnd": 10
+        }
+    }
+},
+{
+    "code": "process['en",
+    "cursorPos": 11,
+    "result": {
+        "completion": {
+            "list": ["process['env']"],
+            "code": "process['en",
+            "cursorPos": 11,
+            "matchedText": "process['en",
+            "cursorStart": 0,
+            "cursorEnd": 11
+        }
+    }
+},
+{
+    "code": "process[\"en",
+    "cursorPos": 11,
+    "result": {
+        "completion": {
+            "list": ["process[\"env\"]"],
+            "code": "process[\"en",
+            "cursorPos": 11,
+            "matchedText": "process[\"en",
+            "cursorStart": 0,
+            "cursorEnd": 11
+        }
+    }
+},
+{
+    "code": "process['env'].toS;",
+    "cursorPos": 18,
+    "result": {
+        "completion": {
+            "list": ["process['env'].toString"],
+            "code": "process['env'].toS;",
+            "cursorPos": 18,
+            "matchedText": "process['env'].toS",
+            "cursorStart": 0,
+            "cursorEnd": 18
+        }
+    }
 }]

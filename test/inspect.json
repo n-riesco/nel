@@ -45,4 +45,97 @@
             "usage": "parseInt(string, radix);"
         }
     }
+}, {
+    "code": "null",
+    "cursorPos": 4,
+    "result": {
+        "inspection": {
+            "string": "null",
+            "type": "Null",
+            "code": "null",
+            "cursorPos": 4,
+            "matchedText": "null"
+        },
+        "doc": {
+            "description": "The value null is a JavaScript literal representing null or an \"empty\" value, i.e. no object value is present. It is one of JavaScript's primitive values.",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null",
+            "usage": "null "
+        }
+    }
+}, {
+    "code": "undefined",
+    "cursorPos": 9,
+    "result": {
+        "inspection": {
+            "string": "undefined",
+            "type": "Undefined",
+            "code": "undefined",
+            "cursorPos": 9,
+            "matchedText": "undefined"
+        },
+        "doc": {
+            "description": "The global undefined value property represents the value undefined. It is one of JavaScript's primitive types.",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined",
+            "usage": "undefined"
+        }
+    }
+}, {
+    "code": "Array",
+    "cursorPos": 5,
+    "result": {
+        "inspection": {
+            "string": "function Array() { [native code] }",
+            "type": "Function",
+            "constructorList": [ "Function", "Object" ],
+            "length": 1,
+            "code": "Array",
+            "cursorPos": 5,
+            "matchedText": "Array"
+        },
+        "doc": {
+            "description": "The JavaScript Array global object is a constructor for arrays, which are high-level, list-like objects.",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+            "usage": "[element0, element1, ..., elementN]\nnew Array(element0, element1[, ...[, elementN]])\nnew Array(arrayLength)"
+        }
+    }
+}, {
+    "code": "Array.apply",
+    "cursorPos": 11,
+    "result": {
+        "inspection": {
+            "string": "function apply() { [native code] }",
+            "type": "Function",
+            "constructorList": [ "Function", "Object" ],
+            "length": 2,
+            "code": "Array.apply",
+            "cursorPos": 11,
+            "matchedText": "Array.apply"
+        },
+        "doc": {
+            "description": "The apply() method calls a function with a given this value and arguments provided as an array (or an array-like object).",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply",
+            "usage": "fun.apply(thisArg, [argsArray])\nParameters\n  thisArg\n    The value of this provided for the call to fun. Note that this may\n    not be the actual value seen by the method: if the method is a\n    function in non-strict mode code, null and undefined will be\n    replaced with the global object, and primitive values will be\n    boxed.\n  argsArray\n    An array-like object, specifying the arguments with which fun\n    should be called, or null or undefined if no arguments should be\n    provided to the function. Starting with ECMAScript 5 these\n    arguments can be a generic array-like object instead of an array.\n    See below for browser compatibility information."
+        }
+    }
+}, {
+    "code": "console",
+    "cursorPos": 7,
+    "result": {
+        "inspection": {
+            "string": "Console {\n  log: [Function: bound ],\n  info: [Function: bound ],\n  warn: [Function: bound ],\n  error: [Function: bound ],\n  dir: [Function: bound ],\n  time: [Function: bound ],\n  timeEnd: [Function: bound ],\n  trace: [Function: bound trace],\n  assert: [Function: bound ],\n  Console: [Function: Console] }",
+            "type": "Console",
+            "code": "console",
+            "cursorPos": 7,
+            "matchedText": "console"
+        }
+    }
+}, {
+    "code": "window",
+    "cursorPos": 12,
+    "result": {
+        "error": {
+            "ename": "ReferenceError",
+            "evalue": "window is not defined"
+        }
+    }
 }]

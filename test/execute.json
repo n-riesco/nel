@@ -9,11 +9,191 @@
     },
     "stdout": "Hello, World!\n",
     "stderr": "Hello, World!\n"
-}, {
+},
+{
     "code": "msg;",
     "result": {
         "mime": {
             "text/plain": "'Hello, World!'"
+        }
+    }
+},
+{
+    "code": "'Hello, World!'",
+    "result": {
+        "mime": {
+            "text/plain": "'Hello, World!'"
+        }
+    }
+},
+{
+    "code": "throw new Error('Hello, World!')",
+    "result": {
+        "error": {
+            "ename": "Error",
+            "evalue": "Hello, World!"
+        }
+    }
+},
+{
+    "code": "[] instanceof Array",
+    "result": {
+        "mime": {
+            "text/plain": "true"
+        }
+    }
+},
+{
+    "code": "var a = {}",
+    "result": {
+        "mime": {
+            "text/plain": "undefined"
+        }
+    }
+},
+{
+    "code": "a",
+    "result": {
+        "mime": {
+            "text/plain": "{}"
+        }
+    }
+},
+{
+    "code": "a.a = a",
+    "result": {
+        "mime": {
+            "text/plain": "{ a: [Circular] }"
+        }
+    }
+},
+{
+    "code": "console.log('Hello, World!')",
+    "result": {
+        "mime": {
+            "text/plain": "undefined"
+        }
+    },
+    "stdout": "Hello, World!\n"
+},
+{
+    "code": "console.error('Hello, World!')",
+    "result": {
+        "mime": {
+            "text/plain": "undefined"
+        }
+    },
+    "stderr": "Hello, World!\n"
+},
+{
+    "code": "require instanceof Function",
+    "result": {
+        "mime": {
+            "text/plain": "true"
+        }
+    }
+},
+{
+    "code": "var fs = require('fs')",
+    "result": {
+        "mime": {
+            "text/plain": "undefined"
+        }
+    }
+},
+{
+    "code": "this",
+    "result": {}
+},
+{
+    "code": "process",
+    "result": {}
+},
+{
+    "code": "new Array(1 + 16*1024)",
+    "result": {}
+},
+{
+    "code": "global",
+    "result": {}
+},
+{
+    "code": "$$mime$$ = { 'text/plain': 'test' }",
+    "result": {
+        "mime": {
+            "text/plain": "test"
+        }
+    }
+},
+{
+    "code": "$$html$$ = 'test'",
+    "result": {
+        "mime": {
+            "text/html": "test"
+        }
+    }
+},
+{
+    "code": "$$svg$$ = 'test'",
+    "result": {
+        "mime": {
+            "image/svg+xml": "test"
+        }
+    }
+},
+{
+    "code": "$$png$$ = 'test'",
+    "result": {
+        "mime": {
+            "image/png": "test"
+        }
+    }
+},
+{
+    "code": "$$jpeg$$ = 'test'",
+    "result": {
+        "mime": {
+            "image/jpeg": "test"
+        }
+    }
+},
+{
+    "code": "$$async$$ = true; $$html$$ = 1; $$done$$();",
+    "result": {
+        "mime": {
+            "text/html": 1
+        }
+    }
+},
+{
+    "code": "$$async$$ = true; setTimeout(function() {$$html$$ = 1; $$done$$();}, 0);",
+    "result": {
+        "mime": {
+            "text/html": 1
+        }
+    }
+},
+{
+    "code": "$$done$$(1)",
+    "result": {
+        "mime": {
+            "text/plain": "1"
+        }
+    }
+},
+{
+    "code": "$$async$$ = true; setTimeout(function() {throw new Error(2);}, 0); $$done$$(1);",
+    "result": {
+        "mime": {
+            "text/plain": "1"
+        }
+    }
+},
+{
+    "code": "var a = {b123: {c123: {d123: {e123: {$_$: 0}}}}};",
+    "result": {
+        "mime": {
+            "text/plain": "undefined"
         }
     }
 }]
