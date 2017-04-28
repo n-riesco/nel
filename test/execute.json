@@ -197,7 +197,7 @@
     "code": "Object.keys($$);",
     "result": {
         "mime": {
-            "text/plain": "[ 'async',\n  'done',\n  'sendResult',\n  'sendError',\n  'mime',\n  'text',\n  'html',\n  'svg',\n  'png',\n  'jpeg' ]"
+            "text/plain": "[ 'async',\n  'done',\n  'sendResult',\n  'sendError',\n  'mime',\n  'text',\n  'html',\n  'svg',\n  'png',\n  'jpeg',\n  'json' ]"
         }
     }
 },
@@ -380,6 +380,24 @@
             "image/jpeg": 1
         }, {
             "image/jpeg": 2
+        }]
+    }
+},
+{
+    "code": "$$.async(); (function($$) { setTimeout(function() { $$.json({x: 1}); }); })($$)",
+    "result": {
+        "mime": {
+            "application/json": {"x": 1}
+        }
+    }
+},
+{
+    "code": "$$.async(); $$.json({x: 1}, true); (function($$) { setTimeout(function() { $$.json({x: 2}); }); })($$)",
+    "result": {
+        "mime": [{
+            "application/json": {"x": 1}
+        }, {
+            "application/json": {"x": 2}
         }]
     }
 }]
