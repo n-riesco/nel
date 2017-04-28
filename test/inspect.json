@@ -122,7 +122,6 @@
     "cursorPos": 7,
     "result": {
         "inspection": {
-            "string": "Console {\n  log: [Function: bound ],\n  info: [Function: bound ],\n  warn: [Function: bound ],\n  error: [Function: bound ],\n  dir: [Function: bound ],\n  time: [Function: bound ],\n  timeEnd: [Function: bound ],\n  trace: [Function: bound trace],\n  assert: [Function: bound ],\n  Console: [Function: Console] }",
             "type": "Console",
             "code": "console",
             "cursorPos": 7,
