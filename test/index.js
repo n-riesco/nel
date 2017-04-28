@@ -147,22 +147,28 @@ describe("NEL:", function() {
     });
 
     it("Session#restart can restart a session", function(done) {
-        var signal = "SIGTERM";
+        var expectedSignal = (process.version.indexOf("v0.10.") === 0) ?
+            null: "SIGTERM";
+        var expectedCode = (process.version.indexOf("v0.10.") === 0) ?
+            143: null;
 
-        session.restart(signal, function(code, signal) {
-            expect(code).toBe(null, "Unexpected restart code");
-            expect(signal).toBe(signal, "Unexpected restart signal");
+        session.restart(expectedSignal, function(code, signal) {
+            expect(code).toBe(expectedCode, "Unexpected restart code");
+            expect(signal).toBe(expectedSignal, "Unexpected restart signal");
 
             done();
         });
     });
 
     it("Session#kill can kill a session", function(done) {
-        var signal = "SIGTERM";
+        var expectedSignal = (process.version.indexOf("v0.10.") === 0) ?
+            null: "SIGTERM";
+        var expectedCode = (process.version.indexOf("v0.10.") === 0) ?
+            143: null;
 
-        session.kill(signal, function(code, signal) {
-            expect(code).toBe(null, "Unexpected kill code");
-            expect(signal).toBe(signal, "Unexpected kill signal");
+        session.kill(expectedSignal, function(code, signal) {
+            expect(code).toBe(expectedCode, "Unexpected kill code");
+            expect(signal).toBe(expectedSignal, "Unexpected kill signal");
 
             done();
         });
