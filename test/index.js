@@ -180,15 +180,16 @@ describe("NEL:", function() {
         log("Added execution test case:", testCase.code);
 
         var code = testCase.code;
-        var expectedResult = testCase.result;
+        var expectedResult = testCase.result || {};
         var stdout = testCase.stdout;
         var stderr = testCase.stderr;
 
         it("can execute '" + code + "'", function(done) {
-            log("Test execution case:", testCase.code);
+            log("Test execution case:", code);
 
             var hasRun = [];
-            var executionResult;
+            var executionResult = [];
+            var executionError = [];
             var stdoutResult = "";
             var stderrResult = "";
 
@@ -207,17 +208,17 @@ describe("NEL:", function() {
 
             function afterRequest() {
                 hasRun.push("afterRequest");
-                checkResult();
+                check();
             }
 
             function onSuccess(result) {
                 hasRun.push("onSuccess");
-                executionResult = result;
+                executionResult.push(result.mime);
             }
 
             function onError(error) {
                 hasRun.push("onError");
-                executionResult = error;
+                executionError.push(error.error);
             }
 
             function onStdout(data) {
@@ -228,22 +229,80 @@ describe("NEL:", function() {
                 stderrResult += data;
             }
 
-            function checkResult() {
-                if (expectedResult.error) {
-                    expect(hasRun).toDeepEqual(
-                        ["beforeRequest", "onError", "afterRequest"],
-                        "Unexpected callbacks were run"
-                    );
+            function check() {
+                checkHasRun();
+                checkResult();
+            }
+
+            function checkHasRun() {
+                expect(hasRun[0]).toDeepEqual(
+                    "beforeRequest",
+                    "Unexpected callbacks were run"
+                );
+
+                expect(hasRun[hasRun.length - 1]).toDeepEqual(
+                    "afterRequest",
+                    "Unexpected callbacks were run"
+                );
+
+                var counter = {};
+                hasRun.forEach(function(event) {
+                    var n = counter[event];
+                    counter[event] = (n) ? n+1 : 1;
+                });
+
+                var expectedCounter = {};
+                if (Array.isArray(expectedResult.mime)) {
+                    expectedResult.mime.forEach(function(r) {
+                        var n = expectedCounter.onSuccess;
+                        expectedCounter.onSuccess = (n) ? n + 1 : 1;
+                    });
                 } else {
-                    expect(hasRun).toDeepEqual(
-                        ["beforeRequest", "onSuccess", "afterRequest"],
-                        "Unexpected callbacks were run"
+                    if (expectedResult.mime) expectedCounter.onSuccess = 1;
+                }
+                if (Array.isArray(expectedResult.error)) {
+                    expectedResult.error.forEach(function(r) {
+                        var n = expectedCounter.onError;
+                        expectedCounter.onError = (n) ? n + 1 : 1;
+                    });
+                } else {
+                    if (expectedResult.error) expectedCounter.onError = 1;
+                }
+
+                expect(counter).toDeepEqual(
+                    expectedCounter,
+                    "Unexpected callbacks were run"
+                );
+            }
+
+            function checkResult() {
+                if (Array.isArray(expectedResult.mime)) {
+                    expectedResult.mime.forEach(function(r, i) {
+                        expect(executionResult[i]).toDeepEqual(r,
+                            "Unexpected execution result"
+                        );
+                    });
+                } else if (expectedResult.mime){
+                    expect(executionResult[0]).toDeepEqual(expectedResult.mime,
+                        "Unexpected execution result"
                     );
                 }
 
-                expect(executionResult).toDeepEqual(expectedResult,
-                    "Unexpected execution result"
-                );
+                if (Array.isArray(expectedResult.error)) {
+                    expectedResult.error.forEach(function(r, i) {
+                        expect(executionError[i]).toDeepEqual(r,
+                            "Unexpected execution error"
+                        );
+                    });
+                } else if (expectedResult.error) {
+                    expect(executionError[0]).toDeepEqual(expectedResult.error,
+                        "Unexpected execution error"
+                    );
+                } else {
+                    expect(executionError[0]).toDeepEqual(expectedResult.error,
+                        "Unexpected execution error"
+                    );
+                }
 
                 if (stdout) {
                     expect(stdoutResult).toEqual(stdout, "Unexpected stdout");
