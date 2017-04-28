@@ -102,20 +102,16 @@
     }
 },
 {
-    "code": "this",
-    "result": {}
+    "code": "this"
 },
 {
-    "code": "process",
-    "result": {}
+    "code": "process"
 },
 {
-    "code": "new Array(1 + 16*1024)",
-    "result": {}
+    "code": "new Array(1 + 16*1024)"
 },
 {
-    "code": "global",
-    "result": {}
+    "code": "global"
 },
 {
     "code": "$$mime$$ = { 'text/plain': 'test' }",
@@ -195,5 +191,195 @@
         "mime": {
             "text/plain": "undefined"
         }
+    }
+},
+{
+    "code": "Object.keys($$);",
+    "result": {
+        "mime": {
+            "text/plain": "[ 'async',\n  'done',\n  'sendResult',\n  'sendError',\n  'mime',\n  'text',\n  'html',\n  'svg',\n  'png',\n  'jpeg' ]"
+        }
+    }
+},
+{
+    "code": "$$.done(1);",
+    "result": {
+        "mime": {
+            "text/plain": "1"
+        }
+    }
+},
+{
+    "code": "$$.async(false);",
+    "result": {
+        "mime": {
+            "text/plain": "false"
+        }
+    }
+},
+{
+    "code": "$$.async(0);",
+    "result": {
+        "mime": {
+            "text/plain": "false"
+        }
+    }
+},
+{
+    "code": "$$.async('');",
+    "result": {
+        "mime": {
+            "text/plain": "false"
+        }
+    }
+},
+{
+    "code": "var async = $$.async(); $$.async(false); async;",
+    "result": {
+        "mime": {
+            "text/plain": "true"
+        }
+    }
+},
+{
+    "code": "$$.async(); (function($$) { setTimeout(function() { $$.done(1); }); })($$)",
+    "result": {
+        "mime": {
+            "text/plain": "1"
+        }
+    }
+},
+{
+    "code": "$$.async(); (function($$) { setTimeout(function() { $$.done(); }); })($$)"
+},
+{
+    "code": "$$.async(); console.log(1); (function($$) { setTimeout(function() { $$.done(); }); })($$)",
+    "stdout": "1\n"
+},
+{
+    "code": "$$.async(); (function($$) { setTimeout(function() { console.log(2); $$.done(); }); })($$)",
+    "stdout": "2\n"
+},
+{
+    "code": "$$.async(); (function($$) { setTimeout(function() { $$.sendResult(1); }); })($$)",
+    "result": {
+        "mime": {
+            "text/plain": "1"
+        }
+    }
+},
+{
+    "code": "$$.async(); $$.sendResult(1, true); (function($$) { setTimeout(function() { $$.sendResult(2); }); })($$)",
+    "result": {
+        "mime": [{
+            "text/plain": "1"
+        }, {
+            "text/plain": "2"
+        }]
+    }
+},
+{
+    "code": "$$.async(); (function($$) { setTimeout(function() { $$.sendError(new Error(1)); }); })($$)",
+    "result": {
+        "error": {
+            "ename": "Error",
+            "evalue": "1"
+        }
+    }
+},
+{
+    "code": "$$.async(); $$.sendError(new Error(1), true); (function($$) { setTimeout(function() { $$.sendError(new Error(2)); }); })($$)",
+    "result": {
+        "error": [{
+            "ename": "Error",
+            "evalue": "1"
+        }, {
+            "ename": "Error",
+            "evalue": "2"
+        }]
+    }
+},
+{
+    "code": "$$.async(); (function($$) { setTimeout(function() { $$.mime(1); }); })($$)",
+    "result": {
+        "mime": 1
+    }
+},
+{
+    "code": "$$.async(); $$.mime(1, true); (function($$) { setTimeout(function() { $$.mime(2); }); })($$)",
+    "result": {
+        "mime": [1, 2]
+    }
+},
+{
+    "code": "$$.async(); (function($$) { setTimeout(function() { $$.text(1); }); })($$)",
+    "result": {
+        "mime": {
+            "text/plain": 1
+        }
+    }
+},
+{
+    "code": "$$.async(); $$.text(1, true); (function($$) { setTimeout(function() { $$.text(2); }); })($$)",
+    "result": {
+        "mime": [{
+            "text/plain": 1
+        }, {
+            "text/plain": 2
+        }]
+    }
+},
+{
+    "code": "$$.async(); (function($$) { setTimeout(function() { $$.html(1); }); })($$)",
+    "result": {
+        "mime": {
+            "text/html": 1
+        }
+    }
+},
+{
+    "code": "$$.async(); $$.html(1, true); (function($$) { setTimeout(function() { $$.html(2); }); })($$)",
+    "result": {
+        "mime": [{
+            "text/html": 1
+        }, {
+            "text/html": 2
+        }]
+    }
+},
+{
+    "code": "$$.async(); (function($$) { setTimeout(function() { $$.png(1); }); })($$)",
+    "result": {
+        "mime": {
+            "image/png": 1
+        }
+    }
+},
+{
+    "code": "$$.async(); $$.png(1, true); (function($$) { setTimeout(function() { $$.png(2); }); })($$)",
+    "result": {
+        "mime": [{
+            "image/png": 1
+        }, {
+            "image/png": 2
+        }]
+    }
+},
+{
+    "code": "$$.async(); (function($$) { setTimeout(function() { $$.jpeg(1); }); })($$)",
+    "result": {
+        "mime": {
+            "image/jpeg": 1
+        }
+    }
+},
+{
+    "code": "$$.async(); $$.jpeg(1, true); (function($$) { setTimeout(function() { $$.jpeg(2); }); })($$)",
+    "result": {
+        "mime": [{
+            "image/jpeg": 1
+        }, {
+            "image/jpeg": 2
+        }]
     }
 }]
