@@ -269,7 +269,7 @@
     }
 },
 {
-    "code": "$$.async(); $$.sendResult(1, true); (function($$) { setTimeout(function() { $$.sendResult(2); }); })($$)",
+    "code": "$$.sendResult(1, true); (function($$) { setTimeout(function() { $$.sendResult(2); }); })($$)",
     "result": {
         "mime": [{
             "text/plain": "1"
@@ -288,7 +288,7 @@
     }
 },
 {
-    "code": "$$.async(); $$.sendError(new Error(1), true); (function($$) { setTimeout(function() { $$.sendError(new Error(2)); }); })($$)",
+    "code": "$$.sendError(new Error(1), true); (function($$) { setTimeout(function() { $$.sendError(new Error(2)); }); })($$)",
     "result": {
         "error": [{
             "ename": "Error",
@@ -306,7 +306,7 @@
     }
 },
 {
-    "code": "$$.async(); $$.mime(1, true); (function($$) { setTimeout(function() { $$.mime(2); }); })($$)",
+    "code": "$$.mime(1, true); (function($$) { setTimeout(function() { $$.mime(2); }); })($$)",
     "result": {
         "mime": [1, 2]
     }
@@ -320,7 +320,7 @@
     }
 },
 {
-    "code": "$$.async(); $$.text(1, true); (function($$) { setTimeout(function() { $$.text(2); }); })($$)",
+    "code": "$$.text(1, true); (function($$) { setTimeout(function() { $$.text(2); }); })($$)",
     "result": {
         "mime": [{
             "text/plain": 1
@@ -338,7 +338,7 @@
     }
 },
 {
-    "code": "$$.async(); $$.html(1, true); (function($$) { setTimeout(function() { $$.html(2); }); })($$)",
+    "code": "$$.html(1, true); (function($$) { setTimeout(function() { $$.html(2); }); })($$)",
     "result": {
         "mime": [{
             "text/html": 1
@@ -356,7 +356,7 @@
     }
 },
 {
-    "code": "$$.async(); $$.png(1, true); (function($$) { setTimeout(function() { $$.png(2); }); })($$)",
+    "code": "$$.png(1, true); (function($$) { setTimeout(function() { $$.png(2); }); })($$)",
     "result": {
         "mime": [{
             "image/png": 1
@@ -374,7 +374,7 @@
     }
 },
 {
-    "code": "$$.async(); $$.jpeg(1, true); (function($$) { setTimeout(function() { $$.jpeg(2); }); })($$)",
+    "code": "$$.jpeg(1, true); (function($$) { setTimeout(function() { $$.jpeg(2); }); })($$)",
     "result": {
         "mime": [{
             "image/jpeg": 1
@@ -392,7 +392,7 @@
     }
 },
 {
-    "code": "$$.async(); $$.json({x: 1}, true); (function($$) { setTimeout(function() { $$.json({x: 2}); }); })($$)",
+    "code": "$$.json({x: 1}, true); (function($$) { setTimeout(function() { $$.json({x: 2}); }); })($$)",
     "result": {
         "mime": [{
             "application/json": {"x": 1}
