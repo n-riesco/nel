@@ -189,6 +189,7 @@ describe("NEL:", function() {
         var expectedResult = testCase.result || {};
         var stdout = testCase.stdout;
         var stderr = testCase.stderr;
+        var display = testCase.display || [];
 
         it("can execute '" + code + "'", function(done) {
             log("Test execution case:", code);
@@ -198,6 +199,7 @@ describe("NEL:", function() {
             var executionError = [];
             var stdoutResult = "";
             var stderrResult = "";
+            var displayUpdates = [];
 
             session.execute(code, {
                 onSuccess: onSuccess,
@@ -206,6 +208,7 @@ describe("NEL:", function() {
                 afterRun: afterRequest,
                 onStdout: onStdout,
                 onStderr: onStderr,
+                onDisplay: onDisplay,
             });
 
             function beforeRequest() {
@@ -233,6 +236,10 @@ describe("NEL:", function() {
 
             function onStderr(data) {
                 stderrResult += data;
+            }
+
+            function onDisplay(update) {
+                displayUpdates.push(update);
             }
 
             function check() {
@@ -316,6 +323,12 @@ describe("NEL:", function() {
 
                 if (stderr) {
                     expect(stderrResult).toEqual(stderr, "Unexpected stderr");
+                }
+
+                if (display) {
+                    expect(displayUpdates).toDeepEqual(display,
+                        "Unexpected display updates"
+                    );
                 }
 
                 done();

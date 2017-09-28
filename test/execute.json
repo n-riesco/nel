@@ -197,7 +197,7 @@
     "code": "Object.keys($$);",
     "result": {
         "mime": {
-            "text/plain": "[ 'async',\n  'done',\n  'sendResult',\n  'sendError',\n  'mime',\n  'text',\n  'html',\n  'svg',\n  'png',\n  'jpeg',\n  'json' ]"
+            "text/plain": "[ 'async',\n  'done',\n  'sendResult',\n  'sendError',\n  'mime',\n  'text',\n  'html',\n  'svg',\n  'png',\n  'jpeg',\n  'json',\n  'display' ]"
         }
     }
 },
@@ -400,4 +400,94 @@
             "application/json": {"x": 2}
         }]
     }
+},
+{
+    "code": "$$.display().text(1);",
+    "display": [{
+        "mime": {
+            "text/plain": 1
+        }
+    }]
+},
+{
+    "code": "$$.async(); (function($$) {$$.display().text(1); $$.done();})($$);",
+    "display": [{
+        "mime": {
+            "text/plain": 1
+        }
+    }]
+},
+{
+    "code": "var $cell1 = $$.display('cell1'); $cell1.text(1);",
+    "display": [{
+        "display_id": "cell1",
+        "mime": {
+            "text/plain": 1
+        }
+    }]
+},
+{
+    "code": "var $cell2 = $$.display('cell2'); $cell2.text(1); $cell2.text(2);",
+    "result": {
+        "mime": {
+            "text/plain": "undefined"
+        }
+    },
+    "display": [{
+        "display_id": "cell2",
+        "mime": {
+            "text/plain": 1
+        }
+    }, {
+        "display_id": "cell2",
+        "mime": {
+            "text/plain": 2
+        }
+    }]
+},
+{
+    "code": "$$.display().html(1);",
+    "display": [{
+        "mime": {
+            "text/html": 1
+        }
+    }]
+},
+{
+    "code": "$$.display().svg(1);",
+    "display": [{
+        "mime": {
+            "image/svg+xml": 1
+        }
+    }]
+},
+{
+    "code": "$$.display().png(1);",
+    "display": [{
+        "mime": {
+            "image/png": 1
+        }
+    }]
+},
+{
+    "code": "$$.display().jpeg(1);",
+    "display": [{
+        "mime": {
+            "image/jpeg": 1
+        }
+    }]
+},
+{
+    "code": "$$.display().json({x: 1});",
+    "display": [{
+        "mime": {
+            "application/json": {"x": 1}
+        }
+    }]
+},
+{
+    "code": "$$.display().mime(1);",
+    "display": [{
+        "mime": 1
+    }]
 }]

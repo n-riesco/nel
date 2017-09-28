@@ -36,6 +36,7 @@ change.
   amongst [ijavascript](https://n-riesco.github.io/ijavascript),
   [jp-babel](https://github.com/n-riesco/jp-babel) and
   [jp-coffeescript](https://github.com/n-riesco/jp-coffeescript).
+- `NEL v0.5.4`: New API (added onDisplay callback)
 - `NEL v0.5`: New API (added transpile option)
 - `NEL v0.4`: New API (added onStdout and onStderr callbacks)
 - `NEL v0.3`: New API (simplify API by hiding type module:nel~Task)
@@ -111,6 +112,32 @@ session.execute(code, {
     onError: console.error,
     onStdout: console.log,
     onStderr: console.error,
+});
+```
+
+### `onDisplay` callback
+
+The [Jupyter messaging protocol](http://jupyter-client.readthedocs.io/en/latest/messaging.html#display-data)
+introduces the concept of display. A display is very much like an execution
+result. It is associated with an execution request and in protocol version 5.1
+and above it can be assigned an ID for subsequent updates. Here's an example of
+the support provided by `NEL`:
+
+```js
+// Example using onDisplay callback
+// Output:
+// { mime: { 'text/plain': 'Hello, World!' } }
+code = "$$.display().text('Hello, World!');";
+session.execute(code, {
+    onDisplay: console.log,
+});
+
+// Example using a display ID
+// Output:
+// { display_id: 'test', mime: { 'text/plain': 'Hello, World!' } }
+code = "$$.display('test').text('Hello, World!');";
+session.execute(code, {
+    onDisplay: console.log,
 });
 ```
 
@@ -292,6 +319,5 @@ requests, ...
 ## TODO
 
 - Add tests for customising output
-- Add tests for async output
 - Add tests for transpile option
 - Add `Node.js` documentation
