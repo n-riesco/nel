@@ -498,4 +498,20 @@
             "text/plain": "1"
         }]
     }
+},
+{
+    "code": "new Promise(resolve => setTimeout(resolve)).then(function () { return  $$.jpeg(1) })",
+    "result": {
+        "mime": [{
+            "image/jpeg": 1
+        }]
+    }
+},
+{
+    "code": "$$.json(new Promise(resolve => setTimeout(resolve)).then(function () { return {x: 1} }))",
+    "result": {
+        "mime": [{
+            "application/json": { "x": 1 }
+        }]
+    }
 }]
