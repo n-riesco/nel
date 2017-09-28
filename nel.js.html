@@ -71,41 +71,20 @@ module.exports = {
     Session: Session,
 };
 
-var console = require("console");
+
 var fs = require("fs");
 var path = require("path");
 var spawn = require("child_process").spawn;
 
 var doc = require("./mdn.js"); // Documentation for Javascript builtins
-
-
-// Setup logging helpers
-var log;
-var dontLog = function dontLog() {};
-var doLog = function doLog() {
-    process.stderr.write("NEL: ");
-    console.error.apply(this, arguments);
-};
-
-if (process.env.DEBUG) {
-    global.DEBUG = true;
-
-    try {
-        doLog = require("debug")("NEL:");
-    } catch (err) {}
-}
-
-log = global.DEBUG ? doLog : dontLog;
+var log = require("./log.js")("NEL:");
+var server = require("./server/index.js");  // Server source code
 
 
 // File paths
 var paths = {
     node: process.argv[0],
-    thisFile: fs.realpathSync(module.filename),
 };
-paths.thisFolder = path.dirname(paths.thisFile);
-paths.client = paths.thisFile;
-paths.server = path.join(paths.thisFolder, "nel_server.js");
 
 
 /**
@@ -168,12 +147,23 @@ function Session(nelConfig) {
 
     /**
      * Table of execution contexts
-     * (execution contexts are created to allow running multiple execution
-     * requests asynchronously)
+     * (execution contexts are created to allow asynchronous execution of cells)
+     * (indexed by execution context ID)
+     * (contexts that complete their execution are removed from this table)
      * @member {Object.&lt;number, module:nel~Task>}
      * @private
      */
     this._contextTable = {};
+
+    /**
+     * Table of execution contexts that create a display ID
+     * (displays are created to allow multiple outputs per cell)
+     * (indexed by execution context ID)
+     * (cannot use this._contextTable)
+     * @member {Object.&lt;number, module:nel~Task>}
+     * @private
+     */
+    this._displayTable = {};
 
     /**
      * Last execution context id (0 if none have been created)
@@ -238,7 +228,7 @@ Session._command = paths.node;
  * @member {String[]}
  * @private
  */
-Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
+Session._args = ["--eval", server]; // --eval workaround
 
 /**
  * Combination of a piece of code to be run within a session and all the
@@ -266,8 +256,17 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * @property {module:nel~AfterRunCB}  [afterRun]  Called after running the code
  * @property {module:nel~OnStdioCB}   [onStdout]  Called if process.stdout data
  * @property {module:nel~OnStdioCB}   [onStderr]  Called if process.stderr data
+ * @property {module:nel~OnDisplayCB} [onDisplay] Called on display updates
  *
  * @private
+ */
+
+/**
+ * Callback run with a display update
+ * @see {@link module:nel~Session#execute}
+ *
+ * @callback OnDisplayCB
+ * @param {module:nel~DisplayMessage} update  Display ID and MIME bundle
  */
 
 /**
@@ -369,6 +368,7 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  *
  * @typedef Message {
  *     module:nel~LogMessage |
+ *     module:nel~DisplayMessage |
  *     module:nel~StatusMessage |
  *     module:nel~StdoutMessage |
  *     module:nel~StderrMessage |
@@ -383,6 +383,26 @@ Session._args = ["--eval", fs.readFileSync(paths.server)]; // --eval workaround
  * @typedef LogMessage
  *
  * @property {string}   log     Message for logging purposes
+ *
+ * @private
+ */
+
+/**
+ * Display message received from the session server
+ *
+ * @typedef DisplayMessage
+ *
+ * @property {number}  [id]  Execution context id
+ *                           (deleted before the message reaches the API user)
+ * @property {string}  [display_id]  Display id
+ *                                   (if unset, internally set to empty string)
+ *                                   (see Jupyter messaging protocol spec)
+ * @property           mime
+ * @property {string}  [mime."text/plain"]     Plain text
+ * @property {string}  [mime."text/html"]      HTML format
+ * @property {string}  [mime."image/svg+xml"]  SVG format
+ * @property {string}  [mime."image/png"]      PNG as a base64 string
+ * @property {string}  [mime."image/jpeg"]     JPEG as a base64 string
  *
  * @private
  */
@@ -561,7 +581,7 @@ Session.prototype._onMessage = function(message) {
     delete message.end;
 
     // Handle message.log
-    if (message.log) {
+    if (message.hasOwnProperty("log")) {
         log(message.log);
         return;
     }
@@ -584,7 +604,7 @@ Session.prototype._onMessage = function(message) {
     }
 
     // Handle message.stdout
-    if (message.stdout) {
+    if (message.hasOwnProperty("stdout")) {
         if (task.onStdout) {
             task.onStdout(message.stdout);
         } else {
@@ -594,12 +614,37 @@ Session.prototype._onMessage = function(message) {
     }
 
     // Handle message.stderr
-    if (message.stderr) {
+    if (message.hasOwnProperty("stderr")) {
         if (task.onStderr) {
             task.onStderr(message.stderr);
         } else {
             log("SESSION: MESSAGE: Missing stderr callback");
         }
+        return;
+    }
+
+    // Handle message.display_id
+    if (message.hasOwnProperty("display_id")) {
+        var displayTask = this._displayTable[contextId] || task;
+
+        if (message.display_id === "") {
+            // if a display_id was not set,
+            // remove it from message before invoking onDisplay
+            delete message.display_id;
+        } else {
+            // if a display_id was set,
+            // keep the task so that onDisplay can be invoked in future messages
+            if (!this._displayTable.hasOwnProperty(contextId)) {
+                this._displayTable[contextId] = displayTask;
+            }
+        }
+
+        if (displayTask.onDisplay) {
+            displayTask.onDisplay(message);
+        } else {
+            log("SESSION: MESSAGE: Missing display callback");
+        }
+
         return;
     }
 
@@ -735,6 +780,7 @@ Session.prototype._runNext = function() {
  * @param {AfterRunCB}           [callbacks.afterRun]
  * @param {OnStdioCB}            [callbacks.onStdout]
  * @param {OnStdioCB}            [callbacks.onStderr]
+ * @param {OnDisplayCB}          [callbacks.onDisplay]
  */
 Session.prototype.execute = function(code, callbacks) {
     log("SESSION: EXECUTE:", code);
@@ -762,6 +808,9 @@ Session.prototype.execute = function(code, callbacks) {
         }
         if (callbacks.onStderr) {
             task.onStderr = callbacks.onStderr;
+        }
+        if (callbacks.onDisplay) {
+            task.onDisplay = callbacks.onDisplay;
         }
     }
 
@@ -1284,13 +1333,13 @@ function getDocumentation(name) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-nel.html">nel</a></li></ul><h3>Classes</h3><ul><li><a href="module-nel-Session.html">Session</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-log.html">log</a></li><li><a href="module-nel.html">nel</a></li></ul><h3>Classes</h3><ul><li><a href="module-nel-Session.html">Session</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Apr 07 2017 00:10:12 GMT+0100 (BST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Sep 28 2017 11:39:13 GMT+0100 (BST)
 </footer>
 
 <script> prettyPrint(); </script>
