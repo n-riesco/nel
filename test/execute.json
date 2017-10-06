@@ -402,6 +402,77 @@
     }
 },
 {
+    "code": "$$.sendResult((global.Promise) ? Promise.resolve(1) : 1);",
+    "result": {
+        "mime": [{
+            "text/plain": "1"
+        }]
+    }
+},
+{
+    "code": "$$.sendError((global.Promise) ? Promise.resolve(new Error(1)) : new Error(1));",
+    "result": {
+        "error": [{
+            "ename": "Error",
+            "evalue": "1"
+        }]
+    }
+},
+{
+    "code": "$$.mime((global.Promise) ? Promise.resolve(1) : 1);",
+    "result": {
+        "mime": 1
+    }
+},
+{
+    "code": "$$.text((global.Promise) ? Promise.resolve(1) : 1);",
+    "result": {
+        "mime": [{
+            "text/plain": 1
+        }]
+    }
+},
+{
+    "code": "$$.html((global.Promise) ? Promise.resolve(1) : 1);",
+    "result": {
+        "mime": [{
+            "text/html": 1
+        }]
+    }
+},
+{
+    "code": "$$.svg((global.Promise) ? Promise.resolve(1) : 1);",
+    "result": {
+        "mime": [{
+            "image/svg+xml": 1
+        }]
+    }
+},
+{
+    "code": "$$.png((global.Promise) ? Promise.resolve(1) : 1);",
+    "result": {
+        "mime": [{
+            "image/png": 1
+        }]
+    }
+},
+{
+    "code": "$$.jpeg((global.Promise) ? Promise.resolve(1) : 1);",
+    "result": {
+        "mime": [{
+            "image/jpeg": 1
+        }]
+    }
+},
+{
+    "code": "$$.json((global.Promise) ? Promise.resolve(1) : 1);",
+    "result": {
+        "mime": [{
+            "application/json": 1
+        }]
+    }
+},
+{
     "code": "$$.display().text(1);",
     "display": [{
         "mime": {
