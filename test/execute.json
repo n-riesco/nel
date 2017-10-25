@@ -490,28 +490,4 @@
     "display": [{
         "mime": 1
     }]
-},
-{
-    "code": "new Promise(function (resolve) { setTimeout(resolve) }).then(function () { return 1 })",
-    "result": {
-        "mime": [{
-            "text/plain": "1"
-        }]
-    }
-},
-{
-    "code": "new Promise(function (resolve) { setTimeout(resolve) }).then(function () { return $$.jpeg(1) })",
-    "result": {
-        "mime": [{
-            "image/jpeg": 1
-        }]
-    }
-},
-{
-    "code": "$$.json(new Promise(function (resolve) { setTimeout(resolve) }).then(function () { return {x: 1} }))",
-    "result": {
-        "mime": [{
-            "application/json": { "x": 1 }
-        }]
-    }
 }]

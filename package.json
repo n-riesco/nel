@@ -34,8 +34,5 @@
         "lint": "jshint index.js lib",
         "test:jasmine": "jasmine test",
         "test": "npm run lint && npm run test:jasmine"
-    },
-    "dependencies": {
-        "bluebird": "^3.5.0"
     }
 }
