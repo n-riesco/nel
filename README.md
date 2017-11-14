@@ -36,7 +36,9 @@ change.
   amongst [ijavascript](https://n-riesco.github.io/ijavascript),
   [jp-babel](https://github.com/n-riesco/jp-babel) and
   [jp-coffeescript](https://github.com/n-riesco/jp-coffeescript).
-- `NEL v0.5.4`: New API (added onDisplay callback)
+- `NEL v0.5.6`: New API (added $$.input() and onRequest callback)
+- `NEL v0.5.5`: Accept Promises as output
+- `NEL v0.5.4`: New API (added $$.display() and onDisplay callback)
 - `NEL v0.5`: New API (added transpile option)
 - `NEL v0.4`: New API (added onStdout and onStderr callbacks)
 - `NEL v0.3`: New API (simplify API by hiding type module:nel~Task)
@@ -141,6 +143,47 @@ session.execute(code, {
 });
 ```
 
+### `onRequest` callback and `$$.input(options, callback)`
+
+The [Jupyter messaging protocol](http://jupyter-client.readthedocs.io/en/latest/messaging.html#messages-on-the-stdin-router-dealer-channel)
+defines an stdin socket, so that a kernel can request an input from the user.
+`NEL` defines ``$$.input(options, callback)` to create such a request.
+
+Here are two examples (first one passing a callback to `$$.input`; second one
+using a `Promise` returned by `$$.input()`):
+
+```js
+// Example passing a callback to $$.input()
+// Output:
+// { mime: { 'text/plain': '\'opensesame\'' } }
+code = "$$.input({prompt:'?', password: true}, function(error, reply) {$$.done(reply)});";
+
+session.execute(code, {
+    onRequest: function(request, onReply) {
+        assert(request.input.prompt === "?");
+        assert(request.input.password === true);
+
+        onReply({input: "opensesame"});
+    },
+    onSuccess: console.log,
+});
+
+// Example using the Promise returned by $$.input()
+// Output:
+// { mime: { 'text/plain': '\'opensesame\'' } }
+code = "(function($$) {$$.input({prompt:'?', password: true}).then($$.done);})($$);";
+
+session.execute(code, {
+    onRequest: function(request, onReply) {
+        assert(request.input.prompt === "?");
+        assert(request.input.password === true);
+
+        onReply({input: "opensesame"});
+    },
+    onSuccess: console.log,
+});
+```
+
 ### MIME output
 
 A session may return results in MIME formats other than 'text/plain'.
@@ -183,6 +226,22 @@ code = "$$mime$$ = {\"text/html\": \"<div style='background-color:olive;width:50
 session.execute(code, {
     onSuccess: console.log,
     onError: console.error,
+});
+```
+
+### Promises are accepted as output
+
+When the result of an execution request is a `Promise`, `NEL` enables
+asynchronous execution automatically and waits for the `Promise` to resolve:
+
+```js
+// Example returning a Promise
+// Output:
+// { mime: { 'text/plain': '\'Hello, World!\'' } }
+code = "Promise.resolve('Hello, World!');";
+
+session.execute(code, {
+    onSuccess: console.log,
 });
 ```
 
