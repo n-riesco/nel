@@ -257,8 +257,26 @@ Session._args = ["--eval", server]; // --eval workaround
  * @property {module:nel~OnStdioCB}   [onStdout]  Called if process.stdout data
  * @property {module:nel~OnStdioCB}   [onStderr]  Called if process.stderr data
  * @property {module:nel~OnDisplayCB} [onDisplay] Called on display updates
+ * @property {module:nel~OnRequestCB} [onRequest] Called on requests
  *
  * @private
+ */
+
+/**
+ * Callback run with a request
+ * @see {@link module:nel~Session#execute}
+ *
+ * @callback OnRequestCB
+ * @param {module:nel~RequestMessage} request  Request
+ * @param {module:nel~onReplyCB}      onReply  Callback invoked with the reply
+ */
+
+/**
+ * Callback run with a reply
+ * @see {@link module:nel~Session#execute}
+ *
+ * @callback OnReplyCB
+ * @param {module:nel~ReplyMessage} reply  Reply
  */
 
 /**
@@ -368,6 +386,7 @@ Session._args = ["--eval", server]; // --eval workaround
  *
  * @typedef Message {
  *     module:nel~LogMessage |
+ *     module:nel~RequestMessage |
  *     module:nel~DisplayMessage |
  *     module:nel~StatusMessage |
  *     module:nel~StdoutMessage |
@@ -385,6 +404,30 @@ Session._args = ["--eval", server]; // --eval workaround
  * @property {string}   log     Message for logging purposes
  *
  * @private
+ */
+
+/**
+ * Request message
+ *
+ * @typedef RequestMessage
+ *
+ * @property {number}   [id]  Execution context id
+ *                            (deleted before the message reaches the API user)
+ *
+ * @property {object}   request
+ * @property {number}   [request.id]  Request id
+ *                                    (deleted before reaching the API user)
+ * @property {object}   [request.input]           Input request
+ * @property {string}   [request.input.prompt]    Prompt message
+ * @property {boolean}  [request.input.password]  Treat input as a password
+ */
+
+/**
+ * Reply message
+ *
+ * @typedef ReplyMessage
+ *
+ * @property {string}  [input]  Input reply
  */
 
 /**
@@ -565,10 +608,17 @@ Session._args = ["--eval", server]; // --eval workaround
  * @private
  */
 Session.prototype._onMessage = function(message) {
-    log("SESSION: MESSAGE:", message);
+    // Handle message.log
+    if (message.hasOwnProperty("log")) {
+        log(message.log);
+        return;
+    }
+
+    log("SESSION: RECEIVED:", message);
 
     // Handle message.status
     if (message.status === "online") {
+        log("SESSION: ONLINE");
         this._status = message.status;
         this._runNext();
         return;
@@ -580,27 +630,37 @@ Session.prototype._onMessage = function(message) {
     var endMessage = message.end;
     delete message.end;
 
-    // Handle message.log
-    if (message.hasOwnProperty("log")) {
-        log(message.log);
-        return;
-    }
-
     // Get execution context
     // (if context is missing, default to using the last context)
     var task = this._contextTable[contextId];
 
     if (!task) {
         log(
-            "SESSION: MESSAGE: Missing context, using last context, id =",
+            "SESSION: CONTEXT: Missing context, using last context, id =",
             contextId
         );
 
         task = this._lastTask;
         if (!task) {
-            log("SESSION: MESSAGE: DROPPED: There is no last context");
+            log("SESSION: RECEIVED: DROPPED: There is no last context");
             return;
         }
+    }
+
+    // Handle message.request
+    if (message.hasOwnProperty("request")) {
+        if (task.onRequest) {
+            var requestId = message.request.id;
+            var request = message.request;
+            delete request.id;
+
+            task.onRequest(request, function onReply(reply) {
+                this._server.send(["reply", reply, contextId, requestId]);
+            }.bind(this));
+        } else {
+            log("SESSION: RECEIVED: REQUEST: Missing request callback");
+        }
+        return;
     }
 
     // Handle message.stdout
@@ -608,7 +668,7 @@ Session.prototype._onMessage = function(message) {
         if (task.onStdout) {
             task.onStdout(message.stdout);
         } else {
-            log("SESSION: MESSAGE: Missing stderr callback");
+            log("SESSION: RECEIVED: STDOUT: Missing stdout callback");
         }
         return;
     }
@@ -618,7 +678,7 @@ Session.prototype._onMessage = function(message) {
         if (task.onStderr) {
             task.onStderr(message.stderr);
         } else {
-            log("SESSION: MESSAGE: Missing stderr callback");
+            log("SESSION: RECEIVED: STDERR: Missing stderr callback");
         }
         return;
     }
@@ -642,7 +702,7 @@ Session.prototype._onMessage = function(message) {
         if (displayTask.onDisplay) {
             displayTask.onDisplay(message);
         } else {
-            log("SESSION: MESSAGE: Missing display callback");
+            log("SESSION: RECEIVED: DISPLAY: Missing display callback");
         }
 
         return;
@@ -653,20 +713,20 @@ Session.prototype._onMessage = function(message) {
         if (task.onError) {
             task.onError(message);
         } else {
-            log("SESSION: MESSAGE: Missing onError callback");
+            log("SESSION: RECEIVED: ERROR: Missing onError callback");
         }
     } else {
         if (task.onSuccess) {
             task.onSuccess(message);
         } else {
-            log("SESSION: MESSAGE: Missing onSuccess callback");
+            log("SESSION: RECEIVED: SUCCESS: Missing onSuccess callback");
         }
     }
 
     // Handle message.end
     if (endMessage) {
         if (task) {
-            log("SESSION: MESSAGE: END: id =", contextId);
+            log("SESSION: RECEIVED: END: id =", contextId);
 
             delete this._contextTable[contextId];
 
@@ -674,7 +734,7 @@ Session.prototype._onMessage = function(message) {
                 task.afterRun();
             }
         } else {
-            log("SESSION: MESSAGE: END: DROPPED: id =", contextId);
+            log("SESSION: RECEIVED: END: DROPPED: id =", contextId);
         }
     }
 
@@ -723,7 +783,7 @@ Session.prototype._runNow = function(task) {
         try {
             // Adapted from https://github.com/n-riesco/nel/issues/1 by kebot
             var transpiledCode = this.transpile(this._lastTask.code);
-            log("SESSION: TRANSPILE:\n" + transpiledCode + "\n");
+            log("SESSION: RUN: TRANSPILE:\n" + transpiledCode + "\n");
             this._lastTask.code = transpiledCode;
         } catch (error) {
             this._onMessage({
@@ -781,6 +841,7 @@ Session.prototype._runNext = function() {
  * @param {OnStdioCB}            [callbacks.onStdout]
  * @param {OnStdioCB}            [callbacks.onStderr]
  * @param {OnDisplayCB}          [callbacks.onDisplay]
+ * @param {OnRequestCB}          [callbacks.onRequest]
  */
 Session.prototype.execute = function(code, callbacks) {
     log("SESSION: EXECUTE:", code);
@@ -811,6 +872,9 @@ Session.prototype.execute = function(code, callbacks) {
         }
         if (callbacks.onDisplay) {
             task.onDisplay = callbacks.onDisplay;
+        }
+        if (callbacks.onRequest) {
+            task.onRequest = callbacks.onRequest;
         }
     }
 
@@ -1339,7 +1403,7 @@ function getDocumentation(name) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Oct 25 2017 21:59:37 GMT+0100 (BST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Nov 14 2017 10:25:17 GMT+0000 (GMT)
 </footer>
 
 <script> prettyPrint(); </script>
