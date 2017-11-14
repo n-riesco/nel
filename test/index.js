@@ -442,5 +442,33 @@ describe("NEL:", function() {
                 },
             });
         });
+
+        global.Promise && it("returns a Promise", function(done) {
+            var code = "(function($$) {$$.input({prompt:'?', password: true}).then($$.done)})($$);";
+            var expectedReply = "opensesame";
+
+            session.execute(code, {
+                onRequest: function(request, onReply) {
+                    expect(request).toDeepEqual({
+                        input: {
+                            prompt: "?",
+                            password: true,
+                        },
+                    }, "Unexpected request");
+
+                    onReply({
+                        input: expectedReply,
+                    });
+                },
+                onSuccess: function(result) {
+                    var reply = result.mime["text/plain"];
+                    reply = reply.substring(1, reply.length - 1);
+
+                    expect(reply, expectedReply);
+
+                    done();
+                },
+            });
+        });
     });
 });
