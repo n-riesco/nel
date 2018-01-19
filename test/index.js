@@ -414,6 +414,48 @@ describe("NEL:", function() {
         });
     }
 
+    describe("$$.display()", function() {
+        function onError(errorMessage) {
+            throw new Error(JSON.stringify(errorMessage));
+        }
+
+        it("invokes the onDisplay callback (case display_data)", function(done) {
+            session.execute(
+                "$$.display().text(1);", {
+                onDisplay: checkDisplayMessage,
+                onError: onError,
+            });
+
+            function checkDisplayMessage(displayMessage) {
+                expect(displayMessage.mime["text/plain"]).toEqual(1,
+                    "Unexpected display update"
+                );
+                done();
+            }
+        });
+
+        it("invokes the onDisplay callback (case update_display_data)", function(done) {
+            session.execute(
+                "var $display1 = $$.display('1'); $display1.text(1);", {
+                onDisplay: checkDisplayMessage,
+                onError: onError,
+                onSuccess: function onSuccess(executionMessage) {
+                    session.execute("$display1.text(2);", {onError: onError});
+                },
+            });
+
+            var expectedDisplayMessages = [1, 2];
+            function checkDisplayMessage(displayMessage) {
+                expect(displayMessage.mime["text/plain"]).toEqual(
+                    expectedDisplayMessages.shift(),
+                    "Unexpected display update"
+                );
+
+                if (!expectedDisplayMessages.length) done();
+            }
+        });
+    });
+
     describe("$$.input()", function() {
         it("invokes the onRequest callback", function(done) {
             var code = "$$.input({prompt:'?', password: true}, function(error, reply) {$$.done(reply)});";
