@@ -5,12 +5,15 @@
 
 `NEL` is a spin-off library from
 [IJavascript](https://n-riesco.github.io/ijavascript). This fact explains some
-of the design decisions in `NEL` such as returning results in MIME format, and
+of the design decisions in `NEL`, such as returning results in MIME format, and
 the functionality provided for completion and inspection of Javascript
 expressions.  See the section on usage for more details.
 
-Please, consider this repository as an alpha release. The API is likely to
-change.
+`NEL` is used by the following Jupyter kernels:
+- [IJavascript](https://n-riesco.github.io/ijavascript)
+- [ITypescript](https://www.npmjs.com/package/itypescript)
+- [jp-babel](https://github.com/n-riesco/jp-babel)
+- [jp-coffeescript](https://github.com/n-riesco/jp-coffeescript)
 
 ## Main Features
 
@@ -32,10 +35,7 @@ change.
 
 ## Announcements
 
-- `NEL` is in the process of being refactored to maximise the amount shared
-  amongst [ijavascript](https://n-riesco.github.io/ijavascript),
-  [jp-babel](https://github.com/n-riesco/jp-babel) and
-  [jp-coffeescript](https://github.com/n-riesco/jp-coffeescript).
+- `NEL v1.0.0`: Stable API
 - `NEL v0.5.6`: New API (added $$.input() and onRequest callback)
 - `NEL v0.5.5`: Accept Promises as output
 - `NEL v0.5.4`: New API (added $$.display() and onDisplay callback)
