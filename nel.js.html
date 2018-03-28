@@ -437,10 +437,13 @@ Session._args = ["--eval", server]; // --eval workaround
  *
  * @property {number}  [id]  Execution context id
  *                           (deleted before the message reaches the API user)
+ * @property {string}  [open]        Display id
+ *                                   (only present in the opening message)
  * @property {string}  [display_id]  Display id
- *                                   (if unset, internally set to empty string)
- *                                   (see Jupyter messaging protocol spec)
- * @property           mime
+ *                                   (only present in update messages)
+ * @property {string}  [close]       Display id
+ *                                   (only present in the closing message)
+ * @property           [mime]  (not present in the opening and closing messages)
  * @property {string}  [mime."text/plain"]     Plain text
  * @property {string}  [mime."text/html"]      HTML format
  * @property {string}  [mime."image/svg+xml"]  SVG format
@@ -630,6 +633,54 @@ Session.prototype._onMessage = function(message) {
     var endMessage = message.end;
     delete message.end;
 
+    // Handle message.display
+    if (message.hasOwnProperty("display")) {
+        var displayId;
+        var displayTask;
+
+        // Handle message.display.open
+        // (keep track of the task that opened the display id,
+        // so that it can be updated by other execution requests)
+        if (message.display.hasOwnProperty("open")) {
+            displayId = message.display.open;
+            displayTask = this._contextTable[contextId] || this._lastTask;
+
+            if (displayTask &amp;&amp; displayTask.onDisplay) {
+                this._displayTable[displayId] = displayTask;
+            } else {
+                log("SESSION: RECEIVED: DISPLAY: OPEN: Missing onDisplay");
+            }
+
+            return;
+        }
+
+        // Handle message.display.mime
+        if (message.display.hasOwnProperty("mime")) {
+            if (message.display.hasOwnProperty("display_id")) {
+                displayId = message.display.display_id;
+                displayTask = this._displayTable[displayId] || this._lastTask;
+            } else {
+                displayTask = this._contextTable[contextId] || this._lastTask;
+            }
+
+            if (displayTask &amp;&amp; displayTask.onDisplay) {
+                displayTask.onDisplay(message.display);
+            } else {
+                log("SESSION: RECEIVED: DISPLAY: UPDATE: Missing onDisplay");
+            }
+
+            return;
+        }
+
+        // Handle message.display.close
+        // (unsupported by Jupyter Messaging Protocol)
+        if (message.display.hasOwnProperty("close")) {
+            displayId = message.display.close;
+            delete this._displayTable[displayId];
+            return;
+        }
+    }
+
     // Get execution context
     // (if context is missing, default to using the last context)
     var task = this._contextTable[contextId];
@@ -655,6 +706,7 @@ Session.prototype._onMessage = function(message) {
             delete request.id;
 
             task.onRequest(request, function onReply(reply) {
+                // TODO: handle the case when reply is an instance of Error
                 this._server.send(["reply", reply, contextId, requestId]);
             }.bind(this));
         } else {
@@ -680,31 +732,6 @@ Session.prototype._onMessage = function(message) {
         } else {
             log("SESSION: RECEIVED: STDERR: Missing stderr callback");
         }
-        return;
-    }
-
-    // Handle message.display_id
-    if (message.hasOwnProperty("display_id")) {
-        var displayTask = this._displayTable[contextId] || task;
-
-        if (message.display_id === "") {
-            // if a display_id was not set,
-            // remove it from message before invoking onDisplay
-            delete message.display_id;
-        } else {
-            // if a display_id was set,
-            // keep the task so that onDisplay can be invoked in future messages
-            if (!this._displayTable.hasOwnProperty(contextId)) {
-                this._displayTable[contextId] = displayTask;
-            }
-        }
-
-        if (displayTask.onDisplay) {
-            displayTask.onDisplay(message);
-        } else {
-            log("SESSION: RECEIVED: DISPLAY: Missing display callback");
-        }
-
         return;
     }
 
@@ -767,24 +794,26 @@ Session.prototype._run = function(task) {
  * @private
  */
 Session.prototype._runNow = function(task) {
-    log("SESSION: RUN: TASK:", task);
+    var id = this._lastContextId + 1;
+
+    log("SESSION: RUN: TASK:", id, task);
 
     this._currentTask = task;
+    this._lastTask = task;
+    this._lastContextId = id;
 
-    this._lastContextId++;
-    this._lastTask = this._currentTask;
-    this._contextTable[this._lastContextId] = this._lastTask;
+    this._contextTable[id] = task;
 
-    if (this._lastTask.beforeRun) {
-        this._lastTask.beforeRun();
+    if (task.beforeRun) {
+        task.beforeRun();
     }
 
-    if (this.transpile &amp;&amp; this._lastTask.action === "run") {
+    if (this.transpile &amp;&amp; task.action === "run") {
         try {
             // Adapted from https://github.com/n-riesco/nel/issues/1 by kebot
-            var transpiledCode = this.transpile(this._lastTask.code);
+            var transpiledCode = this.transpile(task.code);
             log("SESSION: RUN: TRANSPILE:\n" + transpiledCode + "\n");
-            this._lastTask.code = transpiledCode;
+            task.code = transpiledCode;
         } catch (error) {
             this._onMessage({
                 error: {
@@ -800,9 +829,7 @@ Session.prototype._runNow = function(task) {
         }
     }
 
-    this._server.send(
-        [this._lastTask.action, this._lastTask.code, this._lastContextId]
-    );
+    this._server.send([task.action, task.code, id]);
 };
 
 /**
@@ -1403,7 +1430,7 @@ function getDocumentation(name) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Nov 16 2017 14:31:23 GMT+0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Mar 28 2018 12:34:53 GMT+0100 (BST)
 </footer>
 
 <script> prettyPrint(); </script>
