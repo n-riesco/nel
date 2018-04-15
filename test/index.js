@@ -34,7 +34,6 @@
  *
  */
 
-var assert = require("assert");
 var fs = require("fs");
 var nel = require("../index.js");
 var path = require("path");
@@ -73,7 +72,7 @@ function deepEqual(actual, expected, memoise) {
         return false;
     }
 
-    if (typeof expected !== 'object') {
+    if (typeof expected !== "object") {
         return actual === expected;
     }
 
@@ -122,9 +121,9 @@ var customMatchers = {
                     pass: pass,
                     message:
                         "Expected " +
-                        inspect(actual, { depth: depth }) +
+                        inspect(actual, {depth: depth}) +
                         ((pass) ? " not " : " ") + "to deep equal " +
-                        inspect(expected, { depth: depth }),
+                        inspect(expected, {depth: depth}),
                 };
 
                 return result;
@@ -148,9 +147,9 @@ describe("NEL:", function() {
 
     it("Session#restart can restart a session", function(done) {
         var expectedSignal = (process.version.indexOf("v0.10.") === 0) ?
-            null: "SIGTERM";
+            null : "SIGTERM";
         var expectedCode = (process.version.indexOf("v0.10.") === 0) ?
-            143: null;
+            143 : null;
 
         session.restart(expectedSignal, function(code, signal) {
             expect(code).toBe(expectedCode, "Unexpected restart code");
@@ -162,9 +161,9 @@ describe("NEL:", function() {
 
     it("Session#kill can kill a session", function(done) {
         var expectedSignal = (process.version.indexOf("v0.10.") === 0) ?
-            null: "SIGTERM";
+            null : "SIGTERM";
         var expectedCode = (process.version.indexOf("v0.10.") === 0) ?
-            143: null;
+            143 : null;
 
         session.kill(expectedSignal, function(code, signal) {
             expect(code).toBe(expectedCode, "Unexpected kill code");
@@ -261,12 +260,12 @@ describe("NEL:", function() {
                 var counter = {};
                 hasRun.forEach(function(event) {
                     var n = counter[event];
-                    counter[event] = (n) ? n+1 : 1;
+                    counter[event] = (n) ? n + 1 : 1;
                 });
 
                 var expectedCounter = {};
                 if (Array.isArray(expectedResult.mime)) {
-                    expectedResult.mime.forEach(function(r) {
+                    expectedResult.mime.forEach(function() {
                         var n = expectedCounter.onSuccess;
                         expectedCounter.onSuccess = (n) ? n + 1 : 1;
                     });
@@ -274,7 +273,7 @@ describe("NEL:", function() {
                     if (expectedResult.mime) expectedCounter.onSuccess = 1;
                 }
                 if (Array.isArray(expectedResult.error)) {
-                    expectedResult.error.forEach(function(r) {
+                    expectedResult.error.forEach(function() {
                         var n = expectedCounter.onError;
                         expectedCounter.onError = (n) ? n + 1 : 1;
                     });
@@ -295,7 +294,7 @@ describe("NEL:", function() {
                             "Unexpected execution result"
                         );
                     });
-                } else if (expectedResult.mime){
+                } else if (expectedResult.mime) {
                     expect(executionResult[0]).toDeepEqual(expectedResult.mime,
                         "Unexpected execution result"
                     );
@@ -422,9 +421,10 @@ describe("NEL:", function() {
         it("invokes the onDisplay callback (case display_data)", function(done) {
             session.execute(
                 "$$.display().text(1);", {
-                onDisplay: checkDisplayMessage,
-                onError: onError,
-            });
+                    onDisplay: checkDisplayMessage,
+                    onError: onError,
+                }
+            );
 
             function checkDisplayMessage(displayMessage) {
                 expect(displayMessage.mime["text/plain"]).toEqual(1,
@@ -437,12 +437,13 @@ describe("NEL:", function() {
         it("invokes the onDisplay callback (case update_display_data)", function(done) {
             session.execute(
                 "var $display1 = $$.display('1'); $display1.text(1);", {
-                onDisplay: checkDisplayMessage,
-                onError: onError,
-                onSuccess: function onSuccess(executionMessage) {
-                    session.execute("$display1.text(2);", {onError: onError});
-                },
-            });
+                    onDisplay: checkDisplayMessage,
+                    onError: onError,
+                    onSuccess: function onSuccess(executionMessage) {
+                        session.execute("$display1.text(2);", {onError: onError});
+                    },
+                }
+            );
 
             var expectedDisplayMessages = [1, 2];
             function checkDisplayMessage(displayMessage) {
