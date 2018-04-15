@@ -418,7 +418,7 @@ describe("NEL:", function() {
             throw new Error(JSON.stringify(errorMessage));
         }
 
-        it("invokes the onDisplay callback (case display_data)", function(done) {
+        it("invokes onDisplay (case display_data)", function(done) {
             session.execute(
                 "$$.display().text(1);", {
                     onDisplay: checkDisplayMessage,
@@ -434,13 +434,16 @@ describe("NEL:", function() {
             }
         });
 
-        it("invokes the onDisplay callback (case update_display_data)", function(done) {
+        it("invokes onDisplay (case update_display_data)", function(done) {
             session.execute(
                 "var $display1 = $$.display('1'); $display1.text(1);", {
                     onDisplay: checkDisplayMessage,
                     onError: onError,
                     onSuccess: function onSuccess(executionMessage) {
-                        session.execute("$display1.text(2);", {onError: onError});
+                        session.execute(
+                            "$display1.text(2);",
+                            {onError: onError}
+                        );
                     },
                 }
             );
@@ -459,7 +462,7 @@ describe("NEL:", function() {
 
     describe("$$.input()", function() {
         it("invokes the onRequest callback", function(done) {
-            var code = "$$.input({prompt:'?', password: true}, function(error, reply) {$$.done(reply)});";
+            var code = "$$.input({prompt:'?', password: true}, function(error, reply) {$$.done(reply)});"; // eslint-disable-line max-len
             var expectedReply = "opensesame";
 
             session.execute(code, {
@@ -487,7 +490,7 @@ describe("NEL:", function() {
         });
 
         global.Promise && it("returns a Promise", function(done) {
-            var code = "(function($$) {$$.input({prompt:'?', password: true}).then($$.done)})($$);";
+            var code = "(function($$) {$$.input({prompt:'?', password: true}).then($$.done)})($$);"; // eslint-disable-line max-len
             var expectedReply = "opensesame";
 
             session.execute(code, {

@@ -24,7 +24,7 @@
     "license": "BSD-3-Clause",
     "devDependencies": {
         "debug": "2",
-        "eslint": "4",
+        "eslint": "2",
         "jasmine": "2",
         "jsdoc": "3"
     },
