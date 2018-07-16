@@ -517,4 +517,24 @@ describe("NEL:", function() {
             });
         });
     });
+
+    describe("$$.clear({wait: true})", function() {
+        it("sends a clear_output request", function(done) {
+            var code = "$$.clear({wait: true});";
+
+            session.execute(code, {
+                onRequest: function(request, onReply) {
+                    expect(request).toDeepEqual({
+                        clear: {
+                            wait: true,
+                        },
+                    }, "Unexpected request");
+
+                    expect(onReply).toBeUndefined();
+
+                    done();
+                },
+            });
+        });
+    });
 });
