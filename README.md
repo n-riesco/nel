@@ -35,6 +35,7 @@ expressions.  See the section on usage for more details.
 
 ## Announcements
 
+- `NEL v1.1.0`: New API (added $$.clear({wait}))
 - `NEL v1.0.0`: Stable API
 - `NEL v0.5.6`: New API (added $$.input() and onRequest callback)
 - `NEL v0.5.5`: Accept Promises as output
@@ -147,7 +148,7 @@ session.execute(code, {
 
 The [Jupyter messaging protocol](http://jupyter-client.readthedocs.io/en/latest/messaging.html#messages-on-the-stdin-router-dealer-channel)
 defines an stdin socket, so that a kernel can request an input from the user.
-`NEL` defines ``$$.input(options, callback)` to create such a request.
+`NEL` defines `$$.input(options, callback)` to create such a request.
 
 Here are two examples (first one passing a callback to `$$.input`; second one
 using a `Promise` returned by `$$.input()`):
@@ -181,6 +182,25 @@ session.execute(code, {
         onReply({input: "opensesame"});
     },
     onSuccess: console.log,
+});
+```
+
+### `onRequest` callback and `$$.clear(options)`
+
+The [Jupyter messaging protocol](http://jupyter-client.readthedocs.io/en/latest/messaging.html#clear_output)
+defines the message `clear_output` for kernels to request the output of a cell
+to be cleared. `NEL` provides `$$.clear(options)` to implement such a request.
+
+Here's an example showing the use:
+
+```js
+// Example using $$.clear(options)
+// Output:
+// { clear: { wait: true } }
+code = "$$.clear({wait: true});";
+
+session.execute(code, {
+    onRequest: console.log
 });
 ```
 
