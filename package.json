@@ -34,5 +34,9 @@
         "lint": "eslint index.js lib test",
         "test:jasmine": "jasmine test",
         "test": "npm run lint && npm run test:jasmine"
+    },
+    "dependencies": {
+        "acorn": "^5.7.2",
+        "semver": "^5.5.1"
     }
 }

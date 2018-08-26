@@ -37,6 +37,7 @@
 var fs = require("fs");
 var nel = require("../index.js");
 var path = require("path");
+var semver = require("semver");
 
 var depth = 2;
 var inspect = require("util").inspect;
@@ -189,8 +190,10 @@ describe("NEL:", function() {
         var stdout = testCase.stdout;
         var stderr = testCase.stderr;
         var display = testCase.display || [];
+        var nodeVersion = testCase.node || "0.10.0";
 
-        it("can execute '" + code + "'", function(done) {
+        var that = semver.gte(process.version, nodeVersion) ? it : xit;
+        that("can execute '" + code + "'", function(done) {
             log("Test execution case:", code);
 
             var hasRun = [];

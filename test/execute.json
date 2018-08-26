@@ -561,4 +561,51 @@
     "display": [{
         "mime": 1
     }]
+},
+{
+    "node": "7.6.0",
+    "code": "await 5;",
+    "result": {
+        "mime": {
+            "text/plain": "5"
+        }
+    }
+},
+{
+    "node": "7.6.0",
+    "code": "var x = await 10;",
+    "result": {
+        "mime": {
+            "text/plain": "undefined"
+        }
+    }
+},
+{
+    "node": "7.6.0",
+    "code": "var x = await 10;\nconsole.log(x);",
+    "result": {
+        "mime": {
+            "text/plain": "undefined"
+        }
+    },
+    "stdout": "10\n"
+},
+{
+    "node": "7.6.0",
+    "code": "console.log(await 40);",
+    "result": {
+        "mime": {
+            "text/plain": "undefined"
+        }
+    },
+    "stdout": "40\n"
+},
+{
+    "node": "7.6.0",
+    "code": "async function func() { return 7; }\nawait func();",
+    "result": {
+        "mime": {
+            "text/plain": "7"
+        }
+    }
 }]
