@@ -34,6 +34,8 @@
  *
  */
 
+/* global Promise */
+
 var fs = require("fs");
 var nel = require("../index.js");
 var path = require("path");
@@ -143,6 +145,104 @@ describe("NEL:", function() {
         }
 
         waitForSession(session, done);
+    });
+
+    it("Session#transpile can transpile execute requests", function(done) {
+        var originalTranspile = session.transpile;
+
+        var expected = inspect("the output of the transpiled code");
+        session.transpile = function() {
+            return expected;
+        };
+
+        session.execute("", {
+            onSuccess: function(result) {
+                expect(result.mime["text/plain"]).toDeepEqual(expected,
+                    "Unexpected execution result");
+                session.transpile = originalTranspile;
+                done();
+            },
+            onError: done.fail,
+        });
+    });
+
+    it("Session#transpile thrown errors are handled", function(done) {
+        var originalTranspile = session.transpile;
+
+        var expectedError = new Error("expected error");
+        session.transpile = function() {
+            throw expectedError;
+        };
+
+        session.execute("", {
+            onSuccess: function(result) {
+                done.fail("transpile didn't throw an error");
+            },
+            onError: function(result) {
+                expect(result.error.ename).toEqual(expectedError.name,
+                    "Unexpected error name");
+                expect(result.error.evalue).toEqual(expectedError.message,
+                    "Unexpected error value");
+                done();
+            },
+            afterRun: function(error) {
+                session.transpile = originalTranspile;
+            },
+        });
+    });
+
+    global.Promise &&
+    it("Session#transpile can return a Promise", function(done) {
+        var originalTranspile = session.transpile;
+
+        var expected = inspect("the output of the transpiled code");
+        session.transpile = function() {
+            return new Promise(function(resolve) {
+                setImmediate(function() {
+                    resolve(expected);
+                });
+            });
+        };
+
+        session.execute("", {
+            onSuccess: function(result) {
+                expect(result.mime["text/plain"]).toDeepEqual(expected,
+                    "Unexpected execution result");
+                session.transpile = originalTranspile;
+                done();
+            },
+            onError: done.fail,
+        });
+    });
+
+    global.Promise &&
+    it("Session#transpile can handle a rejected Promise", function(done) {
+        var originalTranspile = session.transpile;
+
+        var expectedError = new Error("expected error");
+        session.transpile = function() {
+            return new Promise(function(resolve, reject) {
+                setImmediate(function() {
+                    reject(expectedError);
+                });
+            });
+        };
+
+        session.execute("", {
+            onSuccess: function(result) {
+                done.fail("transpile didn't throw an error");
+            },
+            onError: function(result) {
+                expect(result.error.ename).toEqual(expectedError.name,
+                    "Unexpected error name");
+                expect(result.error.evalue).toEqual(expectedError.message,
+                    "Unexpected error value");
+                done();
+            },
+            afterRun: function(error) {
+                session.transpile = originalTranspile;
+            },
+        });
     });
 
     it("Session#restart can restart a session", function(done) {
