@@ -60,14 +60,6 @@
     }
 },
 {
-    "code": "a.a = a",
-    "result": {
-        "mime": {
-            "text/plain": "{ a: [Circular] }"
-        }
-    }
-},
-{
     "code": "console.log('Hello, World!')",
     "result": {
         "mime": {
@@ -190,14 +182,6 @@
     "result": {
         "mime": {
             "text/plain": "undefined"
-        }
-    }
-},
-{
-    "code": "Object.keys($$);",
-    "result": {
-        "mime": {
-            "text/plain": "[ 'async',\n  'done',\n  'sendResult',\n  'sendError',\n  'mime',\n  'text',\n  'html',\n  'svg',\n  'png',\n  'jpeg',\n  'json',\n  'input',\n  'display',\n  'clear' ]"
         }
     }
 },

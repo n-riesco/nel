@@ -537,4 +537,52 @@ describe("NEL:", function() {
             });
         });
     });
+
+    describe("Tests with results dependent on the Node.js version", function() {
+        describe("Session#execute", function() {
+            it("can execute 'var a = {}; a.a = a;'", function(done) {
+                var code = "var a = {}; a.a = a;";
+
+                var a = {}; a.a = a;
+                var expected = inspect(a);
+
+                session.execute(code, {
+                    onSuccess: function(result) {
+                        expect(result.mime["text/plain"]).toDeepEqual(expected,
+                            "Unexpected execution result");
+                        done();
+                    },
+                });
+            });
+
+            it("can execute 'Object.keys($$);'", function(done) {
+                var code = "Object.keys($$);";
+
+                var expected = inspect([
+                    "async",
+                    "done",
+                    "sendResult",
+                    "sendError",
+                    "mime",
+                    "text",
+                    "html",
+                    "svg",
+                    "png",
+                    "jpeg",
+                    "json",
+                    "input",
+                    "display",
+                    "clear"
+                ]);
+
+                session.execute(code, {
+                    onSuccess: function(result) {
+                        expect(result.mime["text/plain"]).toDeepEqual(expected,
+                            "Unexpected execution result");
+                        done();
+                    },
+                });
+            });
+        });
+    });
 });
