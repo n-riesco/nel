@@ -35,6 +35,7 @@ expressions.  See the section on usage for more details.
 
 ## Announcements
 
+- `NEL v1.2.0`: API enhancement (Session#transpile may return a Promise)
 - `NEL v1.1.0`: New API (added $$.clear({wait}))
 - `NEL v1.0.0`: Stable API
 - `NEL v0.5.6`: New API (added $$.input() and onRequest callback)
@@ -398,5 +399,4 @@ requests, ...
 ## TODO
 
 - Add tests for customising output
-- Add tests for transpile option
 - Add `Node.js` documentation
