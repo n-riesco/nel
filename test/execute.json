@@ -4,7 +4,7 @@
         "error": {
             "ename": "string",
             "evalue": "'Hello, World!'",
-            "traceback": ""
+            "traceback": []
         }
     },
     "stdout": "Hello, World!\n",
