@@ -394,6 +394,14 @@
     }
 },
 {
+    "code": "(global.Promise && $$config$$.awaitResult) ? Promise.resolve(1) : 1;",
+    "result": {
+        "mime": [{
+            "text/plain": "1"
+        }]
+    }
+},
+{
     "code": "$$.sendResult((global.Promise) ? Promise.resolve(1) : 1);",
     "result": {
         "mime": [{
