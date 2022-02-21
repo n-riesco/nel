@@ -562,7 +562,7 @@ describe("NEL:", function() {
 
     describe("$$.input()", function() {
         it("invokes the onRequest callback", function(done) {
-            var code = "$$.input({prompt:'?', password: true}, function(error, reply) {$$.done(reply)});"; // eslint-disable-line max-len
+            var code = "(function($$) {$$.input({prompt:'?', password: true}, function(error, reply) {$$.done(reply)})})($$);"; // eslint-disable-line max-len
             var expectedReply = "opensesame";
 
             session.execute(code, {
