@@ -194,6 +194,14 @@
     }
 },
 {
+    "code": "$$.done(1);$$.done(2);",
+    "result": {
+        "mime": {
+            "text/plain": "1"
+        }
+    }
+},
+{
     "code": "$$.async(false);",
     "result": {
         "mime": {
