@@ -35,17 +35,18 @@ expressions.  See the section on usage for more details.
 
 ## Announcements
 
+- `NEL v1.3.0`: API enhancement (added option awaitExecution)
 - `NEL v1.2.0`: API enhancement (Session#transpile may return a Promise)
-- `NEL v1.1.0`: New API (added $$.clear({wait}))
+- `NEL v1.1.0`: API enhancement (added $$.clear({wait}))
 - `NEL v1.0.0`: Stable API
-- `NEL v0.5.6`: New API (added $$.input() and onRequest callback)
+- `NEL v0.5.6`: API enhancement (added $$.input() and onRequest callback)
 - `NEL v0.5.5`: Accept Promises as output
-- `NEL v0.5.4`: New API (added $$.display() and onDisplay callback)
-- `NEL v0.5`: New API (added transpile option)
-- `NEL v0.4`: New API (added onStdout and onStderr callbacks)
+- `NEL v0.5.4`: API enhancement (added $$.display() and onDisplay callback)
+- `NEL v0.5`: API enhancement (added transpile option)
+- `NEL v0.4`: API enhancement (added onStdout and onStderr callbacks)
 - `NEL v0.3`: New API (simplify API by hiding type module:nel~Task)
 - `NEL v0.2`: API change (removed Session#executionCount)
-- `NEL v0.1.1`: New experimental `$$mimer$$` and `$$defaultMimer$$`
+- `NEL v0.1.1`: API enhancement (experimental `$$mimer$$` and `$$defaultMimer$$`)
 - `NEL v0.1`: Output change (changed function output)
 - `NEL v0.0`: Initial release
 
