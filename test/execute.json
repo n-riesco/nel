@@ -394,7 +394,15 @@
     }
 },
 {
-    "code": "(global.Promise && $$config$$.awaitResult) ? Promise.resolve(1) : 1;",
+    "code": "$$.config.awaitExecution;",
+    "result": {
+        "mime": [{
+            "text/plain": "false"
+        }]
+    }
+},
+{
+    "code": "(global.Promise && $$.config.awaitExecution) ? Promise.resolve(1) : 1;",
     "result": {
         "mime": [{
             "text/plain": "1"
