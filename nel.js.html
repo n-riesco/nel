@@ -80,6 +80,14 @@ var log = require("./log.js")("NEL:");
 var server = require("./server/index.js"); // Server source code
 
 
+function isPromise(x) {
+    if (!global.Promise || typeof global.Promise !== "function") {
+        return false;
+    }
+    return x instanceof global.Promise;
+}
+
+
 // File paths
 var paths = {
     node: process.argv[0],
@@ -91,6 +99,8 @@ var paths = {
  *
  * @typedef Config
  *
+ * @property {boolean} [awaitExecution] Enable automatic await if the execution
+ *                                      result is a promise. Default: false.
  * @property {string}  [cwd]        Session current working directory
  * @property {module:nel~Transpiler}
  *                     [transpile]  Function that transpiles the request code
@@ -109,7 +119,7 @@ var paths = {
  *
  * @type    {function}
  * @param   {string}  code  Request code
- * @returns {string}        Transpiled code
+ * @returns {(string|Promise&lt;string>)}  Transpiled code
  *
  * @see {@link module:nel~Config}
  */
@@ -124,11 +134,22 @@ function Session(nelConfig) {
     nelConfig = nelConfig || {};
 
     /**
+     * Session configuration
+     * @member {module:nel~Config}
+     * @private
+     */
+    this._nelConfig = {
+        awaitExecution: !!nelConfig.awaitExecution,
+        cwd: nelConfig.cwd,
+        transpile: nelConfig.transpile,
+    };
+
+    /**
      * Function that transpiles the request code into Javascript that can be run
      * by the Node.js session (null/undefined if no transpilation is needed).
      * @member {?module:nel~Transpiler}
      */
-    this.transpile = nelConfig.transpile;
+    this.transpile = this._nelConfig.transpile;
 
     /**
      * Queue of tasks to be run
@@ -179,23 +200,16 @@ function Session(nelConfig) {
     this._lastTask = null;
 
     /**
-     * Session configuration
-     * @member {module:nel~Config}
-     * @private
-     */
-    this._config = {
-        cwd: nelConfig.cwd,
-        stdio: global.DEBUG ?
-            [process.stdin, process.stdout, process.stderr, "ipc"] :
-            ["ignore", "ignore", "ignore", "ipc"],
-    };
-
-    /**
      * Server that runs the code requests for this session
      * @member {module:child_process~ChildProcess}
      * @private
      */
-    this._server = spawn(Session._command, Session._args, this._config);
+    this._server = spawn(Session._command, Session._args, {
+        cwd: this._nelConfig.cwd,
+        stdio: global.DEBUG ?
+            [process.stdin, process.stdout, process.stderr, "ipc"] :
+            ["ignore", "ignore", "ignore", "ipc"],
+    });
     this._server.on("message", Session.prototype._onMessage.bind(this));
     this._server.on("exit", (function(code, signal) {
         log("SESSION: EXIT:", code, signal);
@@ -213,6 +227,12 @@ function Session(nelConfig) {
      * @private
      */
     this._status = "starting";
+
+    // Note that Session#execute will queue the execution request
+    // until Session#_status becomes 'online'.
+    this.execute(
+        "$$.config.awaitExecution = " + this._nelConfig.awaitExecution + ";"
+    );
 }
 
 /**
@@ -818,28 +838,47 @@ Session.prototype._runNow = function(task) {
         task.beforeRun();
     }
 
+    var sendTask = (function sendTask() {
+        this._server.send([task.action, task.code, id]);
+    }).bind(this);
+
+    var sendError = (function sendError(error) {
+        this._onMessage({
+            id: id,
+            end: true,
+            error: {
+                ename: (error &amp;&amp; error.name) ?
+                    error.name : typeof error,
+                evalue: (error &amp;&amp; error.message) ?
+                    error.message : util.inspect(error),
+                traceback: (error &amp;&amp; error.stack) ?
+                    error.stack.split("\n") : "",
+            },
+        });
+    }).bind(this);
+
     if (this.transpile &amp;&amp; task.action === "run") {
         try {
             // Adapted from https://github.com/n-riesco/nel/issues/1 by kebot
             var transpiledCode = this.transpile(task.code);
             log("SESSION: RUN: TRANSPILE:\n" + transpiledCode + "\n");
-            task.code = transpiledCode;
+            if (isPromise(transpiledCode)) {
+                transpiledCode.then(function(value) {
+                    task.code = value;
+                    sendTask();
+                }).catch(sendError);
+                return;
+            } else {
+                task.code = transpiledCode;
+            }
         } catch (error) {
-            this._onMessage({
-                error: {
-                    ename: (error &amp;&amp; error.name) ?
-                        error.name : typeof error,
-                    evalue: (error &amp;&amp; error.message) ?
-                        error.message : util.inspect(error),
-                    traceback: (error &amp;&amp; error.stack) ?
-                        error.stack.split("\n") : "",
-                },
-            });
+            sendError(error);
             return;
         }
     }
 
-    this._server.send([task.action, task.code, id]);
+    sendTask();
+    return;
 };
 
 /**
@@ -1233,8 +1272,9 @@ Session.prototype.kill = function(signal, killCB) {
  * @param {module:nel~RestartCB} [restartCB]        Callback run after restart
  */
 Session.prototype.restart = function(signal, restartCB) {
+    this._nelConfig.transpile = this.transpile;
     this.kill(signal || "SIGTERM", (function(code, signal) {
-        Session.call(this, this._config);
+        Session.call(this, this._nelConfig);
         if (restartCB) {
             restartCB(code, signal);
         }
@@ -1442,7 +1482,7 @@ function getDocumentation(name) {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Jul 29 2018 12:21:38 GMT+0100 (BST)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Wed Feb 23 2022 19:26:25 GMT+0000 (Greenwich Mean Time)
 </footer>
 
 <script> prettyPrint(); </script>
